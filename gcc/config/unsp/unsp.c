@@ -232,8 +232,7 @@ initial_elimination_offset (from, to)
 
   if (from == FRAME_POINTER_REGNUM && to == HARD_FRAME_POINTER_REGNUM)
     offset = 0;
-  else if (from == ARG_POINTER_REGNUM && to == HARD_FRAME_POINTER_REGNUM)
-    {
+  else if (from == ARG_POINTER_REGNUM && to == HARD_FRAME_POINTER_REGNUM) {
       int regno;
       
       offset = 0;
@@ -642,10 +641,7 @@ asm_output_section_name (file, decl, name, reloc)
      int reloc ATTRIBUTE_UNUSED;
 {
   if (TREE_CODE (decl) == VAR_DECL || TREE_CODE (decl) == CONST_DECL)
-    fprintf (file,
-             "%s_sec:\t.section %s\n",
-             XSTR (XEXP (DECL_RTL (decl), 0), 0),
-             name);
+    fprintf (file, "%s\n", name);
   else
     warning ("section attribute \"%s\" discarded for non variable and non constant declaration \"%s\".",
              name, XSTR (XEXP (DECL_RTL (decl), 0), 0));

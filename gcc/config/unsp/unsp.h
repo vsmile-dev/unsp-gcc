@@ -21,7 +21,7 @@ Boston, MA 02111-1307, USA.  */
 
 #define unSP 1
 #define HAVE_cc0
-#define UNSP_VERSION_STRING "1.0.11"
+#define UNSP_VERSION_STRING "1.0.12"
 
 extern int rtx_equal_function_value_matters;
 
@@ -1350,7 +1350,9 @@ extern int unsp_rtx_cost ();
 
 #define TEXT_SECTION_ASM_OP ".code"
 #define DATA_SECTION_ASM_OP ".iram"
-#define BSS_SECTION_ASM_OP  ".ram"
+/* The startup code does not clear all the RAM to zero,
+   we have to make BSS section variables be put in IRAM.  */
+#define BSS_SECTION_ASM_OP  ".iram"
 
 /* Define this so gcc does not output a call to __main, since we
    are not currently supporting c++.  */
