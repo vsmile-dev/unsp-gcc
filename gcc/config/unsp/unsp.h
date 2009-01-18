@@ -21,7 +21,7 @@ Boston, MA 02111-1307, USA.  */
 
 #define unSP 1
 #define HAVE_cc0
-#define UNSP_VERSION_STRING "1.0.12"
+#define UNSP_VERSION_STRING "1.0.13"
 
 extern int rtx_equal_function_value_matters;
 
@@ -82,25 +82,31 @@ extern int target_flags;
 /* Output extra debug info */
 #define MASK_WARN_SEC_VAR   0x0001
 #define MASK_BIG5_ESC_SEQ   0x0002
+#define MASK_IRAM           0x0004
 #define MASK_DEBUG_UNSP_GCC 0x8000
 
 #define TARGET_WARN_SEC_VAR   (target_flags & MASK_WARN_SEC_VAR)
 #define TARGET_BIG5_ESC_SEQ   (target_flags & MASK_BIG5_ESC_SEQ)
+#define TARGET_IRAM           (target_flags & MASK_IRAM)
 #define TARGET_DEBUG_UNSP_GCC (target_flags & MASK_DEBUG_UNSP_GCC)
 
-#define TARGET_SWITCHES				\
-{						\
-  {"warn-sec-var", MASK_WARN_SEC_VAR, 		\
-     "Generate warning when accessing variable in named section"}, \
-  {"big5", MASK_BIG5_ESC_SEQ, 			\
-     "Handle embedded escape characters in zh_TW.Big5 encoding"}, \
-  {"nobig5", -MASK_BIG5_ESC_SEQ, 		\
+#define TARGET_SWITCHES				                        \
+{						                        \
+  {"warn-sec-var", MASK_WARN_SEC_VAR, 		                        \
+     "Generate warning when accessing variable in named section"},      \
+  {"big5", MASK_BIG5_ESC_SEQ, 			                        \
+     "Handle embedded escape characters in zh_TW.Big5 encoding"},       \
+  {"nobig5", -MASK_BIG5_ESC_SEQ,                                        \
      "Don't handle embedded escape characters in zh_TW.Big5 encoding"}, \
-  {"debug", MASK_DEBUG_UNSP_GCC, 		\
-     "Output extra GCC debug information"},	\
-  SUBTARGET_SWITCHES                            \
-  {"", TARGET_DEFAULT,                          \
-     NULL}					\
+  {"global-var-iram", MASK_IRAM,                                        \
+     "Put un-initialized global variables in .IRAM"},                   \
+  {"global-var-ram", -MASK_IRAM,                                        \
+     "Put un-initialized global variables in .RAM"},                    \
+  {"debug", MASK_DEBUG_UNSP_GCC, 		                        \
+     "Output extra GCC debug information"},	                        \
+  SUBTARGET_SWITCHES                                                    \
+  {"", TARGET_DEFAULT,                                                  \
+     NULL}					                        \
 }
 
 extern const char *unsp_packed_string_prefix_string;
@@ -1352,7 +1358,7 @@ extern int unsp_rtx_cost ();
 #define DATA_SECTION_ASM_OP ".iram"
 /* The startup code does not clear all the RAM to zero,
    we have to make BSS section variables be put in IRAM.  */
-#define BSS_SECTION_ASM_OP  ".iram"
+#define BSS_SECTION_ASM_OP  (TARGET_IRAM ? ".iram" : ".ram")
 
 /* Define this so gcc does not output a call to __main, since we
    are not currently supporting c++.  */
