@@ -4983,7 +4983,9 @@ main (argc, argv)
   struct user_specs *uptr;
 
 #ifdef unSP
+#ifdef __MINGW32__
   printf ("Sunplus u'nSP C Compiler - Ver.%s\n", UNSP_VERSION_STRING);
+#endif
 #endif
   p = argv[0] + strlen (argv[0]);
   while (p != argv[0] && !IS_DIR_SEPARATOR (p[-1]))

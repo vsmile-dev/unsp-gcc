@@ -8094,7 +8094,7 @@ skip_quoted_string (bp, limit, start_line, count_newlines, backslash_newlines_p,
   register U_CHAR c, match;
 #ifdef unSP
   int prev_c;
-  c = -1;
+  c = 0;
 #endif
 
   match = *bp++;
@@ -8115,7 +8115,9 @@ skip_quoted_string (bp, limit, start_line, count_newlines, backslash_newlines_p,
     c = *bp++;
 #ifdef unSP
     if ((c == '\\')
-        && ((unsp_big5_esc_seq == 0) || (prev_c < 0x80))) {
+        && ((unsp_big5_esc_seq == 0)
+            || (prev_c < 0x80)
+	    || (prev_c == 0))) {
 #else
     if (c == '\\') {
 #endif
