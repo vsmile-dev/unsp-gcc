@@ -1138,6 +1138,9 @@ assemble_string (p, size)
      const char *p;
      int size;
 {
+#ifdef unSP
+  ASM_OUTPUT_ASCII (asm_out_file, p, size);
+#else
   int pos = 0;
   int maximum = 2000;
 
@@ -1154,6 +1157,7 @@ assemble_string (p, size)
       pos += thissize;
       p += thissize;
     }
+#endif
 }
 
 
@@ -1195,11 +1199,13 @@ assemble_variable (decl, top_level, at_end, dont_output_data)
       if (flag_syntax_only)
 	return;
 
+#ifndef unSP
 #if defined (DBX_DEBUGGING_INFO) || defined (XCOFF_DEBUGGING_INFO)
       /* File-scope global variables are output here.  */
       if ((write_symbols == DBX_DEBUG || write_symbols == XCOFF_DEBUG)
 	   && top_level)
 	dbxout_symbol (decl, 0);
+#endif
 #endif
 #ifdef SDB_DEBUGGING_INFO
       if (write_symbols == SDB_DEBUG && top_level
@@ -1369,11 +1375,14 @@ assemble_variable (decl, top_level, at_end, dont_output_data)
          warning_with_decl 
            (decl, "requested alignment for %s is greater than implemented alignment of %d.",rounded);
 #endif
-       
+
+/* Tim Ouyang */
+#ifndef unSP
 #ifdef DBX_DEBUGGING_INFO
       /* File-scope global variables are output here.  */
       if (write_symbols == DBX_DEBUG && top_level)
 	dbxout_symbol (decl, 0);
+#endif
 #endif
 #ifdef SDB_DEBUGGING_INFO
       if (write_symbols == SDB_DEBUG && top_level
@@ -1483,13 +1492,16 @@ assemble_variable (decl, top_level, at_end, dont_output_data)
       else
 #endif
 	{ /* shp add */
+/* Tim Ouyang */
+#if 0
 #ifdef unSP
 #ifdef DBX_DEBUGGING_INFO
 	  /* File-scope global variables are output here.  */
 	  if (write_symbols == DBX_DEBUG && top_level)
 	    dbxout_symbol (decl, 0);
 #endif
-#endif	
+#endif
+#endif
 	  ASM_GLOBALIZE_LABEL (asm_out_file, name);
 	}
     }
@@ -1529,6 +1541,7 @@ assemble_variable (decl, top_level, at_end, dont_output_data)
   /* Output the dbx info now that we have chosen the section.  */
 
 /* shp move following up */
+/* Tim Ouyang */
 #ifndef unSP
 #ifdef DBX_DEBUGGING_INFO
   /* File-scope global variables are output here.  */

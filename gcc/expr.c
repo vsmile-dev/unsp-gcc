@@ -3802,8 +3802,13 @@ store_expr (exp, target, want_value)
 	  /* Get the size of the data type of the string,
 	     which is actually the size of the target.  */
 	  size = expr_size (exp);
+#ifdef unSP
+	  if (GET_CODE (size) == CONST_INT
+	      && INTVAL (size) < TREE_STRING_PACKED_LENGTH (exp))
+#else
 	  if (GET_CODE (size) == CONST_INT
 	      && INTVAL (size) < TREE_STRING_LENGTH (exp))
+#endif
 	    emit_block_move (target, temp, size,
 			     TYPE_ALIGN (TREE_TYPE (exp)) / BITS_PER_UNIT);
 	  else
@@ -3813,7 +3818,11 @@ store_expr (exp, target, want_value)
 		= size_binop (MIN_EXPR,
 			      make_tree (sizetype, size),
 			      convert (sizetype,
+#ifdef unSP
+				       build_int_2 (TREE_STRING_PACKED_LENGTH (exp), 0)));
+#else
 				       build_int_2 (TREE_STRING_LENGTH (exp), 0)));
+#endif
 	      rtx copy_size_rtx = expand_expr (copy_size, NULL_RTX,
 					       VOIDmode, 0);
 	      rtx label = 0;
@@ -3830,8 +3839,13 @@ store_expr (exp, target, want_value)
 
 	      if (GET_CODE (copy_size_rtx) == CONST_INT)
 		{
+#ifdef unSP
+		  addr = plus_constant (addr, TREE_STRING_PACKED_LENGTH (exp));
+		  size = plus_constant (size, - TREE_STRING_PACKED_LENGTH (exp));
+#else
 		  addr = plus_constant (addr, TREE_STRING_LENGTH (exp));
 		  size = plus_constant (size, - TREE_STRING_LENGTH (exp));
+#endif
 		}
 	      else
 		{
@@ -6228,7 +6242,10 @@ expand_expr (exp, target, tmode, modifier)
 	tree index;
  	tree string = string_constant (exp1, &index);
  	int i;
- 
+
+#ifdef unSP
+	/* u'nSP cannot do this optimization */
+#else 
 	/* Try to optimize reads from const strings.  */
  	if (string
  	    && TREE_CODE (string) == STRING_CST
@@ -6239,6 +6256,7 @@ expand_expr (exp, target, tmode, modifier)
  	    && GET_MODE_SIZE (mode) == 1
 	    && modifier != EXPAND_MEMORY_USE_WO)
  	  return GEN_INT (TREE_STRING_POINTER (string)[i]);
+#endif
 
 	op0 = expand_expr (exp1, NULL_RTX, VOIDmode, EXPAND_SUM);
 	op0 = memory_address (mode, op0);
@@ -6317,6 +6335,9 @@ expand_expr (exp, target, tmode, modifier)
 	   Don't fold if this is for wide characters since it's too
 	   difficult to do correctly and this is a very rare case.  */
 
+#ifdef unSP
+	/* Empty */
+#else
 	if (TREE_CODE (array) == STRING_CST
 	    && TREE_CODE (index) == INTEGER_CST
 	    && !TREE_INT_CST_HIGH (index)
@@ -6324,6 +6345,7 @@ expand_expr (exp, target, tmode, modifier)
 	    && GET_MODE_CLASS (mode) == MODE_INT
 	    && GET_MODE_SIZE (mode) == 1)
 	  return GEN_INT (TREE_STRING_POINTER (array)[i]);
+#endif
 
 	/* If this is a constant index into a constant array,
 	   just get the value from the array.  Handle both the cases when
@@ -6367,6 +6389,9 @@ expand_expr (exp, target, tmode, modifier)
 		      return expand_expr (fold (TREE_VALUE (elem)), target,
 					  tmode, ro_modifier);
 		  }
+#ifdef unSP
+		/* Empty */
+#else
 		else if (TREE_CODE (init) == STRING_CST
 			 && TREE_INT_CST_HIGH (index) == 0
 			 && (TREE_INT_CST_LOW (index)
@@ -6374,6 +6399,7 @@ expand_expr (exp, target, tmode, modifier)
 		  return (GEN_INT
 			  (TREE_STRING_POINTER
 			   (init)[TREE_INT_CST_LOW (index)]));
+#endif
 	      }
 	  }
       }

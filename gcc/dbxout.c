@@ -992,7 +992,7 @@ dbxout_range_type (type)
          Tim Ouyang
       */
       fprintf (asmfile, HOST_WIDE_INT_PRINT_UNSIGNED,
-	       TREE_INT_CST_LOW (TYPE_MAX_VALUE (type)));
+               TREE_INT_CST_LOW (TYPE_MAX_VALUE (type)));
 #else
       fprintf (asmfile, HOST_WIDE_INT_PRINT_DEC,
 	       TREE_INT_CST_LOW (TYPE_MAX_VALUE (type)));
@@ -1001,7 +1001,7 @@ dbxout_range_type (type)
     }
   else
 #ifdef unSP
-    fprintf (asmfile,";%u;",(unsigned int)(-1) );
+    fprintf (asmfile, ";%u;", (unsigned int)(-1));
 #else
     fprintf (asmfile, ";-1;");
 #endif
@@ -1331,6 +1331,8 @@ dbxout_type (type, full, show_arg_types)
 	  fprintf (asmfile, "ar");
 	  dbxout_type_index (integer_type_node);
 	  fprintf (asmfile, ";0;-1;");
+/* Tim Ouyang */
+/* debug_tree (type); */
 	}
       else
 	{

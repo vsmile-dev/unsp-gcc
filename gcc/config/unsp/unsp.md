@@ -4228,7 +4228,10 @@
       emit_insn (gen_ashlqi3_rri (operands[0], operands[1], operands[2]));
       DONE;
     }
+  /*
   else if (GET_CODE(operands[2]) == REG)
+  */
+  else
     {
       rtx ret;
       rtx insns;
@@ -4250,25 +4253,33 @@
 (define_expand "ashlhi3"
   [(set (match_operand:HI 0 "register_operand" "")
         (ashift:HI (match_operand:HI 1 "register_operand" "")
-                   (match_operand:QI 2 "register_operand" "")))]
+                   (match_operand:QI 2 "nonmemory_operand" "")))]
   ""
   "
 {
-  rtx ret;
-  rtx insns;
-  rtx equiv;
+  if ((GET_CODE (operands[2]) == CONST_INT) && (INTVAL (operands[2]) == 16))
+    {
+      emit_insn (gen_ashlhi3_rri (operands[0], operands[1]));
+      DONE;
+    }
+  else /* if (GET_CODE(operands[2]) == REG) */
+    {
+      rtx ret;
+      rtx insns;
+      rtx equiv;
 
-  start_sequence ();
-  ret = emit_library_call_value (gen_rtx (SYMBOL_REF, Pmode, \"_lshiu2\"),
-                                 NULL_RTX, 1, HImode, 2,
-                                 operands[1], HImode,
-                                 operands[2], QImode);
-  equiv = gen_rtx (ASHIFT, HImode, operands[1], operands[2]);
-  insns = get_insns ();
-  end_sequence ();
-  emit_libcall_block (insns, operands[0], ret, equiv);
+      start_sequence ();
+      ret = emit_library_call_value (gen_rtx (SYMBOL_REF, Pmode, \"_lshiu2\"),
+                                     NULL_RTX, 1, HImode, 2,
+                                     operands[1], HImode,
+                                     operands[2], QImode);
+      equiv = gen_rtx (ASHIFT, HImode, operands[1], operands[2]);
+      insns = get_insns ();
+      end_sequence ();
+      emit_libcall_block (insns, operands[0], ret, equiv);
 
-  DONE;
+      DONE;
+    }
 }")
 
 ;===============================================================================
@@ -4309,6 +4320,26 @@
   while (i--)
     output_asm_insn (\"%0=%0 lsl %3\", xops);
 
+  return \"\";
+}")
+
+(define_insn "ashlhi3_rri"
+  [(set (match_operand:HI 0 "register_operand" "=r")
+        (ashift:HI (match_operand:HI 1 "register_operand" "r")
+                   (const_int 16)))]
+  ""
+  "*
+{
+  rtx xops[4];
+
+  xops[0] = operands[0];
+  xops[1] = gen_rtx_REG (QImode, REGNO (operands[0]) + 1);
+  xops[2] = operands[1];
+  xops[3] = gen_rtx_REG (QImode, REGNO (operands[1]) + 1);
+
+  if (REGNO (xops[1]) != REGNO (xops[2]))
+    output_asm_insn (\"%1 = %2\\t//special case for left shift 16 bits\", xops);
+  output_asm_insn (\"%0 = 0\", xops);
   return \"\";
 }")
 
@@ -4449,25 +4480,33 @@
 (define_expand "lshrhi3"
   [(set (match_operand:HI 0 "register_operand" "")
         (lshiftrt:HI (match_operand:HI 1 "register_operand" "")
-                     (match_operand:QI 2 "register_operand" "")))]
+                     (match_operand:QI 2 "nonmemory_operand" "")))]
   ""
   "
 {
-  rtx ret;
-  rtx insns;
-  rtx equiv;
+  if ((GET_CODE (operands[2]) == CONST_INT) && (INTVAL (operands[2]) == 16))
+    {
+      emit_insn (gen_lshrhi3_rri (operands[0], operands[1]));
+      DONE;
+    }
+  else /* if (GET_CODE(operands[2]) == REG) */
+    {
+      rtx ret;
+      rtx insns;
+      rtx equiv;
 
-  start_sequence ();
-  ret = emit_library_call_value (gen_rtx (SYMBOL_REF, Pmode, \"_rshu2\"),
-                                 NULL_RTX, 1, HImode, 2,
-                                 operands[1], HImode,
-                                 operands[2], QImode);
-  equiv = gen_rtx (LSHIFTRT, HImode, operands[1], operands[2]);
-  insns = get_insns ();
-  end_sequence ();
-  emit_libcall_block (insns, operands[0], ret, equiv);
+      start_sequence ();
+      ret = emit_library_call_value (gen_rtx (SYMBOL_REF, Pmode, \"_rshu2\"),
+                                     NULL_RTX, 1, HImode, 2,
+                                     operands[1], HImode,
+                                     operands[2], QImode);
+      equiv = gen_rtx (LSHIFTRT, HImode, operands[1], operands[2]);
+      insns = get_insns ();
+      end_sequence ();
+      emit_libcall_block (insns, operands[0], ret, equiv);
 
-  DONE;
+      DONE;
+    }
 }")
 
 ;===============================================================================
@@ -4508,6 +4547,26 @@
   while (i--)
     output_asm_insn (\"%0=%0 lsr %3\", xops);
 
+  return \"\";
+}")
+
+(define_insn "lshrhi3_rri"
+  [(set (match_operand:HI 0 "register_operand" "=r")
+        (lshiftrt:HI (match_operand:HI 1 "register_operand" "r")
+                     (const_int 16)))]
+  ""
+  "*
+{
+  rtx xops[4];
+
+  xops[0] = operands[0];
+  xops[1] = gen_rtx_REG (QImode, REGNO (operands[0]) + 1);
+  xops[2] = operands[1];
+  xops[3] = gen_rtx_REG (QImode, REGNO (operands[1]) + 1);
+
+  if (REGNO (xops[0]) != REGNO (xops[3]))
+    output_asm_insn (\"%0 = %3\\t//special case for logical right shift 16 bits\", xops);
+  output_asm_insn (\"%1 = 0\", xops); 
   return \"\";
 }")
 

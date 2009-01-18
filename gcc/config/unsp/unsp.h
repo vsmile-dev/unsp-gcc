@@ -21,6 +21,7 @@ Boston, MA 02111-1307, USA.  */
 
 #define unSP 1
 #define HAVE_cc0
+#define UNSP_VERSION_STRING "1.0.11"
 
 extern int rtx_equal_function_value_matters;
 
@@ -45,7 +46,22 @@ extern char unsp_tmpstr[];
   Controlling the compilation driver, "gcc"
 */
 
-#define CC1_SPEC "-fkeep-inline-functions"
+#ifndef CC1_SPEC
+#define CC1_SPEC "                    \
+%{mbig5:-fkeep-inline-functions}      \
+%{mnobig5:-fkeep-inline-functions}"
+#endif
+
+#ifndef CPP_SPEC
+#define CPP_SPEC "            \
+%{!mnobig5:-mbig5}            \
+%{!mpc=*:-D __PREFIX_CHAR__=64} \
+%{mpc=*:-D __PREFIX_CHAR__=%*unSP}"
+#endif
+
+#ifndef SUBTARGET_EXTRA_SPECS
+#define SUBTARGET_EXTRA_SPECS
+#endif
 
 /*
   Run-time target specification
@@ -54,35 +70,57 @@ extern char unsp_tmpstr[];
 #define CPP_PREDEFINES "-DunSP"
 
 /* FAR usage:
-   �p�G�g�b�ܼƫe��
-   �h�O�﫬�O�@�ק�, �p�G�O�g�b�ܼƫ᭱, �h�O�u���ܼƧ@�ק�
+   ¦pªG¼g¦bÅÜ¼Æ«e­±
+   «h¬O¹ï«¬§O§@­×§ï, ¦pªG¬O¼g¦bÅÜ¼Æ«á­±, «h¬O¥u¹ïÅÜ¼Æ§@­×§ï
    
-   int FAR *a, *b, c;  a,b �O FAR, c �O int
-   int * a FAR, *b;    a �O FAR, b �O near
-   int * a, FAR *b, *c; a �O near, b,c �O FAR  */
+   int FAR *a, *b, c;  a,b ¬O FAR, c ¬O int
+   int * a FAR, *b;    a ¬O FAR, b ¬O near
+   int * a, FAR *b, *c; a ¬O near, b,c ¬O FAR  */
 
 extern int target_flags;
 
 /* Output extra debug info */
 #define MASK_WARN_SEC_VAR   0x0001
-#define MASK_DEBUG_UNSP_GCC 0x0010
+#define MASK_BIG5_ESC_SEQ   0x0002
+#define MASK_DEBUG_UNSP_GCC 0x8000
 
-#define TARGET_DEBUG_UNSP_GCC (target_flags & MASK_DEBUG_UNSP_GCC)
 #define TARGET_WARN_SEC_VAR   (target_flags & MASK_WARN_SEC_VAR)
+#define TARGET_BIG5_ESC_SEQ   (target_flags & MASK_BIG5_ESC_SEQ)
+#define TARGET_DEBUG_UNSP_GCC (target_flags & MASK_DEBUG_UNSP_GCC)
 
 #define TARGET_SWITCHES				\
 {						\
   {"warn-sec-var", MASK_WARN_SEC_VAR, 		\
-     "Generate warning when accessing variable in named section"},	\
+     "Generate warning when accessing variable in named section"}, \
+  {"big5", MASK_BIG5_ESC_SEQ, 			\
+     "Handle embedded escape characters in zh_TW.Big5 encoding"}, \
+  {"nobig5", -MASK_BIG5_ESC_SEQ, 		\
+     "Don't handle embedded escape characters in zh_TW.Big5 encoding"}, \
   {"debug", MASK_DEBUG_UNSP_GCC, 		\
      "Output extra GCC debug information"},	\
-  {"",               	TARGET_DEFAULT,		\
+  SUBTARGET_SWITCHES                            \
+  {"", TARGET_DEFAULT,                          \
      NULL}					\
 }
 
+extern const char *unsp_packed_string_prefix_string;
+extern char unsp_packed_string_prefix;
+
 #ifndef TARGET_DEFAULT
-#define TARGET_DEFAULT 0
+#define TARGET_DEFAULT MASK_BIG5_ESC_SEQ
 #endif
+
+#define TARGET_OPTIONS                             \
+{                                                  \
+  { "pc=", &unsp_packed_string_prefix_string,      \
+     "Specify the prefix char for packed string"}, \
+  SUBTARGET_OPTIONS                                \
+}
+
+#define SUBTARGET_SWITCHES
+#define SUBTARGET_OPTIONS
+
+#define OVERRIDE_OPTIONS override_options ()
 
 #if !defined(__DATE__)
   #define TARGET_VERSION fprintf (stderr, " (%s)", VERSION_INFO)

@@ -455,7 +455,11 @@ int flag_no_asm;
 
 /* Nonzero means don't recognize any builtin functions.  */
 
+#ifdef unSP
+int flag_no_builtin = 1;
+#else
 int flag_no_builtin;
+#endif
 
 /* Nonzero means don't recognize the non-ANSI builtin functions.
    -ansi sets this.  */
@@ -576,7 +580,11 @@ int warn_missing_braces;
 
 /* Warn if main is suspicious.  */
 
+#ifdef unSP
+int warn_main = -1;
+#else
 int warn_main;
+#endif
 
 /* Warn about #pragma directives that are not recognised.  */
 
@@ -4218,6 +4226,12 @@ finish_decl (decl, init, asmspec_tree)
      computing them in the following function definition.  */
   if (current_binding_level == global_binding_level)
     get_pending_sizes ();
+/* Tim Ouyang */
+#ifdef unSP
+  if ((write_symbols != NO_DEBUG)
+      && (current_binding_level == global_binding_level))
+    dbxout_symbol (decl, 0);
+#endif
 }
 
 /* If DECL has a cleanup, build and return that cleanup here.
@@ -4305,8 +4319,13 @@ complete_array_type (type, initial_value, do_default)
 	{
 	  int eltsize
 	    = int_size_in_bytes (TREE_TYPE (TREE_TYPE (initial_value)));
+#ifdef unSP
+	  maxindex = build_int_2 ((TREE_STRING_PACKED_LENGTH (initial_value)
+				   / eltsize) - 1, 0);
+#else
 	  maxindex = build_int_2 ((TREE_STRING_LENGTH (initial_value)
 				   / eltsize) - 1, 0);
+#endif
 	}
       else if (TREE_CODE (initial_value) == CONSTRUCTOR)
 	{
@@ -4345,6 +4364,8 @@ complete_array_type (type, initial_value, do_default)
       if (!TREE_TYPE (maxindex))
 	TREE_TYPE (maxindex) = TYPE_DOMAIN (type);
     }
+/* Tim Ouyang */
+/* debug_tree (type); */
 
   /* Lay out the type now that we can get the real answer.  */
 

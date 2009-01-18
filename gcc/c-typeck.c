@@ -4807,10 +4807,17 @@ digest_init (type, init, require_constant, constructor_constant)
 	      /* Subtract 1 (or sizeof (wchar_t))
 		 because it's ok to ignore the terminating null char
 		 that is counted in the length of the constant.  */
+#ifdef unSP
+	      if (size < TREE_STRING_PACKED_LENGTH (inside_init)
+			 - (TYPE_PRECISION (typ1) != TYPE_PRECISION (char_type_node)
+			    ? TYPE_PRECISION (wchar_type_node) / BITS_PER_UNIT
+			    : 1))
+#else
 	      if (size < TREE_STRING_LENGTH (inside_init)
-		  - (TYPE_PRECISION (typ1) != TYPE_PRECISION (char_type_node)
-		     ? TYPE_PRECISION (wchar_type_node) / BITS_PER_UNIT
-		     : 1))
+			 - (TYPE_PRECISION (typ1) != TYPE_PRECISION (char_type_node)
+			    ? TYPE_PRECISION (wchar_type_node) / BITS_PER_UNIT
+			    : 1))
+#endif
 		pedwarn_init ("initializer-string for array of chars is too long");
 	    }
 	  return inside_init;
@@ -5687,7 +5694,9 @@ pop_init_level (implicit)
 	      maxindex = copy_node (maxindex);
 	      TYPE_DOMAIN (constructor_type) = build_index_type (maxindex);
 	      TREE_TYPE (maxindex) = TYPE_DOMAIN (constructor_type);
-
+/* Tim Ouyang */
+/* debug_tree (constructor_type); */
+	      
 	      /* TYPE_MAX_VALUE is always one less than the number of elements
 		 in the array, because we start counting at zero.  Therefore,
 		 warn only if the value is less than zero.  */

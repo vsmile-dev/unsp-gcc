@@ -47,6 +47,61 @@ rtx unsp_compare_op1;
 
 char unsp_tmpstr[512];
 
+const char *unsp_packed_string_prefix_string;
+char unsp_packed_string_prefix;
+
+void
+override_options ()
+{
+  if (unsp_packed_string_prefix_string)
+    {
+      if (strcmp (unsp_packed_string_prefix_string, "NULL") == 0)
+	{
+	  unsp_packed_string_prefix = 0;
+	}
+      else if (strlen (unsp_packed_string_prefix_string) != 1)
+        {
+	  error ("Only one prefix character is allowed");
+	  error ("Default prefix character `@' used");
+	  unsp_packed_string_prefix = '@';
+	}
+      else
+        {
+	  unsp_packed_string_prefix = *unsp_packed_string_prefix_string;
+
+	  if ((unsp_packed_string_prefix >= 'A')
+	      && (unsp_packed_string_prefix <= 'Z'))
+	    {
+	    }
+	  else if ((unsp_packed_string_prefix >= 'a')
+	           && (unsp_packed_string_prefix <= 'z'))
+	    {
+	    }
+	  else if ((unsp_packed_string_prefix >= '0')
+	           && (unsp_packed_string_prefix <= '9'))
+	    {
+	    }
+	  else if (unsp_packed_string_prefix == '@')
+	    {
+	    }
+	  else if (unsp_packed_string_prefix == '_')
+	    {
+	    }
+	  else if (unsp_packed_string_prefix == '$')
+	    {
+	    }
+	  else
+	    {
+	      error ("Only one of A-Za-z0-9@_$ or NULL is allowed");
+	      error ("Default prefix character `@' used");
+	      unsp_packed_string_prefix = '@';
+	    }
+        }
+    }
+  else
+    unsp_packed_string_prefix = '@';
+}
+
 /*
 int
 symbolic_address_p (op)
@@ -478,7 +533,7 @@ unsp_asm_file_start (file)
   extern int save_argc;
   extern char **save_argv;
 
-  fprintf (file, "// GCC for SUNPLUS u'nSP version 1.0.10\n");
+  fprintf (file, "// GCC for SUNPLUS u'nSP version %s\n", UNSP_VERSION_STRING);
   fprintf (file, "// Command: ");
   for (i = 0; i < save_argc; i++)
     {
@@ -621,7 +676,7 @@ asm_output_float (file, fp_const)
 #endif
 }
 
-#define ASCII_LENGTH 15
+#define ASCII_LENGTH 20
 void
 asm_output_ascii (file, ptr, length)
      FILE *file;
@@ -630,34 +685,57 @@ asm_output_ascii (file, ptr, length)
 {
   int i;
   int c;
+  int output_packed_string = 0;
+
+  fprintf (asm_out_file, "\t.str ");
+
+  if (ptr[0] == unsp_packed_string_prefix)
+    {
+      length = length * 2;
+      fprintf (asm_out_file, "'@', ");
+      ptr++;
+      output_packed_string = 1;
+    }
 
   for (i = 0; i < length; i++)
     {
       c = ptr[i];
 
-      if (i % ASCII_LENGTH == 0)
-	fprintf (asm_out_file, "\t.dw ");
-
-      if (c >= ' ' && c <= 0177 && c != '\'')
+      if (output_packed_string
+          && (i == length - 1)
+	  && (ptr[i - 1] == 0))
+        {
+	  fprintf (asm_out_file, "%d", 0);
+        }
+      else if (c >= ' ' && c <= 0177 && c != '\'')
 	{
-	  putc ('\'', asm_out_file);
-	  putc (c, asm_out_file);
-	  putc ('\'', asm_out_file);
+          putc ('\'', asm_out_file);
+          putc (c, asm_out_file);
+          putc ('\'', asm_out_file);
 	}
       else
 	{
 	  fprintf (asm_out_file, "%d", c & 0xff);
 	}
-      /* if:
-	 we are not at the last char (i != thissize -1)
-	 and (we are not at a line break multiple
-	 but i == 0) (it will be the very first time)
-	 then put out a comma to extend.  */
-      if ((i != length - 1) && ((i + 1) % ASCII_LENGTH))
-	fprintf(asm_out_file, ",");
-      if (!((i + 1) % ASCII_LENGTH))
-	fprintf (asm_out_file, "\n");
+
+      if (i == length - 1)
+        {
+          /* Empty */
+        }
+      else if ((i + 1) % ASCII_LENGTH == 0)
+        {
+          fprintf (asm_out_file, "\n\t.str ");
+	  if (output_packed_string == 1)
+            {
+              fprintf (asm_out_file, "\'@\', ");
+            }
+        }
+      else
+        {
+          fprintf (asm_out_file, ", ");
+        }
     }
+
   fprintf (asm_out_file, "\n");
 }
 

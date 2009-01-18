@@ -2050,6 +2050,9 @@ yylex ()
     case '"':
     string_constant:
       {
+#ifdef unSP
+	int prev_c = -1;
+#endif
 	unsigned width = wide_flag ? WCHAR_TYPE_SIZE
 	                           : TYPE_PRECISION (char_type_node);
 #ifdef MULTIBYTE_CHARS
@@ -2061,7 +2064,12 @@ yylex ()
 
 	while (c != '"' && c >= 0)
 	  {
+#ifdef unSP
+	    if ((c == '\\')
+		&& ((TARGET_BIG5_ESC_SEQ == 0) || (prev_c < 0x80)))
+#else
 	    if (c == '\\')
+#endif
 	      {
 		int ignore = 0;
 		c = readescape (&ignore);
@@ -2145,6 +2153,9 @@ yylex ()
 	      }
 
 	  skipnewline:
+#ifdef unSP
+	    prev_c = c;
+#endif
 	    c = GETC ();
 	  }
 

@@ -605,6 +605,15 @@ struct tree_real_cst
 /* In a STRING_CST */
 #define TREE_STRING_LENGTH(NODE) (STRING_CST_CHECK (NODE)->string.length)
 #define TREE_STRING_POINTER(NODE) (STRING_CST_CHECK (NODE)->string.pointer)
+#ifdef unSP
+#define PACKED_STRING_PREFIX (unsp_packed_string_prefix)
+#define TREE_STRING_IS_PACKED(NODE) ((TREE_STRING_LENGTH (NODE) > 1) \
+	     && (TREE_STRING_POINTER (NODE)[0] == PACKED_STRING_PREFIX))
+#define TREE_STRING_PACKED_LENGTH(NODE)   \
+	(TREE_STRING_IS_PACKED (NODE)     \
+	 ? (TREE_STRING_LENGTH (NODE) + 1) >> 1 \
+	 : TREE_STRING_LENGTH (NODE))
+#endif
 
 struct tree_string
 {

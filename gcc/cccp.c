@@ -872,6 +872,10 @@ static int deps_column;
 /* Nonzero means -I- has been seen,
    so don't look for #include "foo" the source-file directory.  */
 static int ignore_srcdir;
+
+/* Nonzero means -mbig5 has been seen,
+   so we should handle escape sequence in zh_TW.Big5 encoding.  */
+static int unsp_big5_esc_seq;
 
 static int safe_read PROTO((int, char *, int));
 static void safe_write PROTO((int, char *, int));
@@ -1185,6 +1189,10 @@ print_help ()
   printf ("  -P                        Do not generate #line directives\n");
   printf ("  -$                        Do not include '$' in identifiers\n");
   printf ("  -remap                    Remap file names when including files.\n");
+#ifdef unSP
+  printf ("  -mbig5                    Handle embedded escape characters in zh_TW.Big5 encoding\n");
+  printf ("  -mnobig5                  Don't handle embedded escape characters in zh_TW.Big5 encoding\n");
+#endif
   printf ("  -h or --help              Display this information\n");
 }
 
@@ -1418,6 +1426,13 @@ main (argc, argv)
 	  last_after_include = dirtmp; /* Tail follows the last one */
 	}
 	break;
+
+#ifdef unSP
+      case 'm':
+	if (strcmp (argv[i], "-mbig5") == 0)
+	  unsp_big5_esc_seq = 1;
+	break;
+#endif
 
       case 'o':
 	if (out_fname != NULL)
@@ -2536,6 +2551,9 @@ rescan (op, output_marks)
   /* Record position of last `real' newline.  */
   U_CHAR *beg_of_line;
 
+#ifdef unSP
+  U_CHAR prev_c = -1;
+#endif
 /* Pop the innermost input stack level, assuming it is a macro expansion.  */
 
 #define POPMACRO \
@@ -2569,11 +2587,20 @@ do { ip = &instack[indepth];		\
     abort ();
 
   while (1) {
+#ifdef unSP
+    prev_c = c;
+#endif
     c = *ibp++;
     *obp++ = c;
 
     switch (c) {
     case '\\':
+#ifdef unSP
+      if ((unsp_big5_esc_seq == 1) && (prev_c >= 0x80))    
+        if (ibp < limit)
+	  *obp++ = *ibp++;
+      break;
+#endif	  
       if (*ibp == '\n' && !ip->macro) {
 	/* At the top level, always merge lines ending with backslash-newline,
 	   even in middle of identifier.  But do not merge lines in a macro,
@@ -2815,6 +2842,10 @@ do { ip = &instack[indepth];		\
 	  break;
 
 	case '\\':
+#ifdef unSP
+	  if ((unsp_big5_esc_seq == 1) && (*(ibp - 2) >= 0x80))
+            break;
+#endif
 	  if (*ibp == '\n') {
 	    /* Backslash newline is replaced by nothing at all, but
 	       keep the line counts correct.  But if we are reading
@@ -8061,6 +8092,10 @@ skip_quoted_string (bp, limit, start_line, count_newlines, backslash_newlines_p,
      int *eofp;
 {
   register U_CHAR c, match;
+#ifdef unSP
+  int prev_c;
+  c = -1;
+#endif
 
   match = *bp++;
   while (1) {
@@ -8074,8 +8109,16 @@ skip_quoted_string (bp, limit, start_line, count_newlines, backslash_newlines_p,
 	*eofp = 1;
       break;
     }
+#ifdef unSP
+    prev_c = c;
+#endif
     c = *bp++;
+#ifdef unSP
+    if ((c == '\\')
+        && ((unsp_big5_esc_seq == 0) || (prev_c < 0x80))) {
+#else
     if (c == '\\') {
+#endif
       while (*bp == '\\' && bp[1] == '\n') {
 	if (backslash_newlines_p)
 	  *backslash_newlines_p = 1;

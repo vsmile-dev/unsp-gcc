@@ -4374,6 +4374,37 @@ do_spec_1 (spec, inswitch, soft_matched_part)
 	    break;
 
 	  case '*':
+#ifdef unSP
+            {
+              char ascii_value[10];
+              char *ascii = ascii_value;
+
+              if (*p && *p == 'u')
+                p++;
+              if (*p && *p == 'n')
+                p++;
+              if (*p && *p == 'S')
+                p++;
+              if (*p && *p == 'P')
+                p++;
+
+              if (strcmp (soft_matched_part, "NULL") == 0)
+                {
+	          do_spec_1 ("0 ", 0, NULL_PTR);
+	          break;
+                }
+              else
+                {
+                  sprintf (ascii_value, "%09d", *soft_matched_part);
+                }
+              while (*ascii && *ascii == '0')
+                ascii++;
+
+	      do_spec_1 (ascii, 1, NULL_PTR);
+	      do_spec_1 (" ", 0, NULL_PTR);
+              break;
+            }
+#endif
 	    do_spec_1 (soft_matched_part, 1, NULL_PTR);
 	    do_spec_1 (" ", 0, NULL_PTR);
 	    break;
@@ -4951,6 +4982,9 @@ main (argc, argv)
   const char *p;
   struct user_specs *uptr;
 
+#ifdef unSP
+  printf ("Sunplus u'nSP C Compiler - Ver.%s\n", UNSP_VERSION_STRING);
+#endif
   p = argv[0] + strlen (argv[0]);
   while (p != argv[0] && !IS_DIR_SEPARATOR (p[-1]))
     --p;
