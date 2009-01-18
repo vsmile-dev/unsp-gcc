@@ -8398,7 +8398,11 @@ c_strlen (src)
   src = string_constant (src, &offset_node);
   if (src == 0)
     return 0;
+#ifdef unSP
+  max = TREE_STRING_PACKED_LENGTH (src);
+#else
   max = TREE_STRING_LENGTH (src);
+#endif
   ptr = TREE_STRING_POINTER (src);
   if (offset_node && TREE_CODE (offset_node) != INTEGER_CST)
     {

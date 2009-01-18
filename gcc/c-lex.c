@@ -735,8 +735,13 @@ linenum:
 	  goto skipline;
 	}
 
+#ifdef unSP
+      input_filename
+	= (char *) permalloc (TREE_STRING_PACKED_LENGTH (yylval.ttype) + 1);
+#else
       input_filename
 	= (char *) permalloc (TREE_STRING_LENGTH (yylval.ttype) + 1);
+#endif
       strcpy (input_filename, TREE_STRING_POINTER (yylval.ttype));
       lineno = l;
 
@@ -1396,8 +1401,13 @@ yylex ()
 
 	      /* Copy the string value so that we won't clobber anything
 		 if we put something in the TREE_CHAIN of this one.  */
+#ifdef unSP
+	      yylval.ttype = build_string (TREE_STRING_PACKED_LENGTH (stringval),
+					   TREE_STRING_POINTER (stringval));
+#else
 	      yylval.ttype = build_string (TREE_STRING_LENGTH (stringval),
 					   TREE_STRING_POINTER (stringval));
+#endif
 	      value = STRING;
 	    }
           else if (doing_objc_thang)

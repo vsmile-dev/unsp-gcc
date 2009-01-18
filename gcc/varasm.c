@@ -2341,7 +2341,15 @@ const_hash (exp)
 
     case STRING_CST:
       p = TREE_STRING_POINTER (exp);
+#ifdef unSP
+#if 0
+      len = TREE_STRING_PACKED_LENGTH (exp);
+#else
+      len = strlen (p);
+#endif
+#else
       len = TREE_STRING_LENGTH (exp);
+#endif
       break;
 
     case COMPLEX_CST:
@@ -2490,12 +2498,21 @@ compare_constant_1 (exp, p)
 	return 0;
 
       strp = TREE_STRING_POINTER (exp);
+#ifdef unSP
+      len = TREE_STRING_PACKED_LENGTH (exp);
+      if (bcmp ((char *) &TREE_STRING_LENGTH (exp), p,
+                sizeof TREE_STRING_LENGTH (exp)))
+        return 0;
+
+      p += sizeof TREE_STRING_PACKED_LENGTH (exp);
+#else
       len = TREE_STRING_LENGTH (exp);
       if (bcmp ((char *) &TREE_STRING_LENGTH (exp), p,
 		sizeof TREE_STRING_LENGTH (exp)))
 	return 0;
 
       p += sizeof TREE_STRING_LENGTH (exp);
+#endif
       break;
 
     case COMPLEX_CST:
@@ -2707,9 +2724,15 @@ record_constant_1 (exp)
 
       obstack_1grow (&permanent_obstack, TYPE_MODE (TREE_TYPE (exp)));
       strp = TREE_STRING_POINTER (exp);
+#ifdef unSP
+      len = TREE_STRING_PACKED_LENGTH (exp);
+      obstack_grow (&permanent_obstack, (char *) &TREE_STRING_LENGTH (exp),
+                    sizeof TREE_STRING_LENGTH (exp));
+#else
       len = TREE_STRING_LENGTH (exp);
       obstack_grow (&permanent_obstack, (char *) &TREE_STRING_LENGTH (exp),
 		    sizeof TREE_STRING_LENGTH (exp));
+#endif
       break;
 
     case COMPLEX_CST:
@@ -3132,7 +3155,11 @@ output_constant_def_contents (exp, reloc, labelno)
   /* Output the value of EXP.  */
   output_constant (exp,
 		   (TREE_CODE (exp) == STRING_CST
+#ifdef unSP
+		    ? TREE_STRING_PACKED_LENGTH (exp)
+#else
 		    ? TREE_STRING_LENGTH (exp)
+#endif
 		    : int_size_in_bytes (TREE_TYPE (exp))));
 
 }
@@ -4019,11 +4046,19 @@ output_constant (exp, size)
 	{
 	  int excess = 0;
 
-	  if (size > TREE_STRING_LENGTH (exp))
+#ifdef unSP
+	  if (size > TREE_STRING_PACKED_LENGTH (exp))
 	    {
-	      excess = size - TREE_STRING_LENGTH (exp);
-	      size = TREE_STRING_LENGTH (exp);
+	      excess = size - TREE_STRING_PACKED_LENGTH (exp);
+	      size = TREE_STRING_PACKED_LENGTH (exp);
 	    }
+#else
+          if (size > TREE_STRING_LENGTH (exp))
+            {
+              excess = size - TREE_STRING_LENGTH (exp);
+              size = TREE_STRING_LENGTH (exp);
+            }
+#endif
 
 	  assemble_string (TREE_STRING_POINTER (exp), size);
 	  size = excess;

@@ -2130,10 +2130,23 @@ operand_equal_p (arg0, arg1, only_const)
 				    only_const));
 
       case STRING_CST:
+#ifdef unSP
+        if (TREE_STRING_IS_PACKED (arg0) && TREE_STRING_IS_PACKED (arg1))
+          return (TREE_STRING_PACKED_LENGTH (arg0) == TREE_STRING_PACKED_LENGTH (arg1)
+                  && ! strncmp (TREE_STRING_POINTER (arg0),
+                                TREE_STRING_POINTER (arg1),
+                                strlen (TREE_STRING_POINTER (arg0))));
+        else
+	  return (TREE_STRING_LENGTH (arg0) == TREE_STRING_LENGTH (arg1)
+		  && ! strncmp (TREE_STRING_POINTER (arg0),
+			        TREE_STRING_POINTER (arg1),
+			        TREE_STRING_LENGTH (arg0)));
+#else
 	return (TREE_STRING_LENGTH (arg0) == TREE_STRING_LENGTH (arg1)
 		&& ! strncmp (TREE_STRING_POINTER (arg0),
 			      TREE_STRING_POINTER (arg1),
 			      TREE_STRING_LENGTH (arg0)));
+#endif
 
       case ADDR_EXPR:
 	return operand_equal_p (TREE_OPERAND (arg0, 0), TREE_OPERAND (arg1, 0),

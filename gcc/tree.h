@@ -609,9 +609,9 @@ struct tree_real_cst
 #define PACKED_STRING_PREFIX (unsp_packed_string_prefix)
 #define TREE_STRING_IS_PACKED(NODE) ((TREE_STRING_LENGTH (NODE) > 1) \
 	     && (TREE_STRING_POINTER (NODE)[0] == PACKED_STRING_PREFIX))
-#define TREE_STRING_PACKED_LENGTH(NODE)   \
-	(TREE_STRING_IS_PACKED (NODE)     \
-	 ? (TREE_STRING_LENGTH (NODE) + 1) >> 1 \
+#define TREE_STRING_PACKED_LENGTH(NODE)                   \
+	(TREE_STRING_IS_PACKED (NODE)                     \
+	 ? (strlen (TREE_STRING_POINTER (NODE)) + 2) >> 1 \
 	 : TREE_STRING_LENGTH (NODE))
 #endif
 

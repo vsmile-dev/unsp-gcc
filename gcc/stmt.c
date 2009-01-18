@@ -1226,7 +1226,11 @@ expand_asm_operands (string, outputs, inputs, clobbers, vol, filename, line)
 	 the worst that happens if we get it wrong is we issue an error
 	 message.  */
 
+#ifdef unSP
+      c_len = TREE_STRING_PACKED_LENGTH (TREE_PURPOSE (tail)) - 1;
+#else
       c_len = TREE_STRING_LENGTH (TREE_PURPOSE (tail)) - 1;
+#endif
       constraint = TREE_STRING_POINTER (TREE_PURPOSE (tail));
 
       /* Allow the `=' or `+' to not be at the beginning of the string,
@@ -1406,7 +1410,11 @@ expand_asm_operands (string, outputs, inputs, clobbers, vol, filename, line)
 	  return;
 	}
 
+#ifdef unSP
+      c_len = TREE_STRING_PACKED_LENGTH (TREE_PURPOSE (tail)) - 1;
+#else
       c_len = TREE_STRING_LENGTH (TREE_PURPOSE (tail)) - 1;
+#endif
       constraint = TREE_STRING_POINTER (TREE_PURPOSE (tail));
       orig_constraint = constraint;
 
@@ -1468,8 +1476,12 @@ expand_asm_operands (string, outputs, inputs, clobbers, vol, filename, line)
 		tree o = outputs;
 		for (j = constraint[j] - '0'; j > 0; --j)
 		  o = TREE_CHAIN (o);
-	
+
+#ifdef unSP	
+		c_len = TREE_STRING_PACKED_LENGTH (TREE_PURPOSE (o)) - 1;
+#else
 		c_len = TREE_STRING_LENGTH (TREE_PURPOSE (o)) - 1;
+#endif
 		constraint = TREE_STRING_POINTER (TREE_PURPOSE (o));
 		j = 0;
 		break;

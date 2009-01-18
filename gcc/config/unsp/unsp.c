@@ -683,23 +683,30 @@ asm_output_ascii (file, ptr, length)
   int i;
   int c;
   int output_packed_string = 0;
+  int len;
 
   fprintf (asm_out_file, "\t.str ");
 
   if (ptr[0] == unsp_packed_string_prefix)
     {
-      length = length * 2;
+#ifdef unSP
+      len = strlen (ptr);
+#else
+      len = length * 2;
+#endif
       fprintf (asm_out_file, "'@', ");
       ptr++;
       output_packed_string = 1;
     }
+  else
+    len = length;
 
-  for (i = 0; i < length; i++)
+  for (i = 0; i < len; i++)
     {
       c = ptr[i];
 
       if (output_packed_string
-          && (i == length - 1)
+          && (i == len - 1)
 	  && (ptr[i - 1] == 0))
         {
 	  fprintf (asm_out_file, "%d", 0);
@@ -715,7 +722,7 @@ asm_output_ascii (file, ptr, length)
 	  fprintf (asm_out_file, "%d", c & 0xff);
 	}
 
-      if (i == length - 1)
+      if (i == len - 1)
         {
           /* Empty */
         }
@@ -732,8 +739,16 @@ asm_output_ascii (file, ptr, length)
           fprintf (asm_out_file, ", ");
         }
     }
+#ifdef unSP
+  if (output_packed_string)
+    if ((len & 1) == 0)
+      fprintf (asm_out_file, ", 0, 0");
+    else
+      fprintf (asm_out_file, ", 0");
+#endif
 
   fprintf (asm_out_file, "\n");
+  fprintf (asm_out_file, "\t// length = %d\n", length);
 }
 
 void

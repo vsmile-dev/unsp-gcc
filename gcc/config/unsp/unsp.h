@@ -21,7 +21,7 @@ Boston, MA 02111-1307, USA.  */
 
 #define unSP 1
 #define HAVE_cc0
-#define UNSP_VERSION_STRING "1.0.17"
+#define UNSP_VERSION_STRING "1.0.18"
 
 extern int rtx_equal_function_value_matters;
 
@@ -72,7 +72,7 @@ extern char unsp_tmpstr[];
 /* FAR usage:
    ¦pªG¼g¦bÅÜ¼Æ«e­±
    «h¬O¹ï«¬§O§@­×§ï, ¦pªG¬O¼g¦bÅÜ¼Æ«á­±, «h¬O¥u¹ïÅÜ¼Æ§@­×§ï
-   
+
    int FAR *a, *b, c;  a,b ¬O FAR, c ¬O int
    int * a FAR, *b;    a ¬O FAR, b ¬O near
    int * a, FAR *b, *c; a ¬O near, b,c ¬O FAR  */
@@ -90,11 +90,11 @@ extern int target_flags;
 #define TARGET_IRAM           (target_flags & MASK_IRAM)
 #define TARGET_DEBUG_UNSP_GCC (target_flags & MASK_DEBUG_UNSP_GCC)
 
-#define TARGET_SWITCHES				                        \
-{						                        \
-  {"warn-sec-var", MASK_WARN_SEC_VAR, 		                        \
+#define TARGET_SWITCHES                                                 \
+{                                                                       \
+  {"warn-sec-var", MASK_WARN_SEC_VAR,                                   \
      "Generate warning when accessing variable in named section"},      \
-  {"big5", MASK_BIG5_ESC_SEQ, 			                        \
+  {"big5", MASK_BIG5_ESC_SEQ,                                           \
      "Handle embedded escape characters in zh_TW.Big5 encoding"},       \
   {"nobig5", -MASK_BIG5_ESC_SEQ,                                        \
      "Don't handle embedded escape characters in zh_TW.Big5 encoding"}, \
@@ -102,11 +102,11 @@ extern int target_flags;
      "Put un-initialized global variables in .IRAM"},                   \
   {"global-var-ram", -MASK_IRAM,                                        \
      "Put un-initialized global variables in .RAM"},                    \
-  {"debug", MASK_DEBUG_UNSP_GCC, 		                        \
-     "Output extra GCC debug information"},	                        \
+  {"debug", MASK_DEBUG_UNSP_GCC,                                        \
+     "Output extra GCC debug information"},                             \
   SUBTARGET_SWITCHES                                                    \
   {"", TARGET_DEFAULT,                                                  \
-     NULL}					                        \
+     NULL}                                                              \
 }
 
 extern const char *unsp_packed_string_prefix_string;
@@ -135,17 +135,17 @@ extern char unsp_packed_string_prefix;
 #endif
 #define VERSION_INFO "SUNPLUS u'nSP(alpha)"
 
-/* aladdin 
+/* aladdin
  * Add for ISR function attribute
  */
 #define UNSP_ISR_FLAG TREE_LANG_FLAG_0
 
-/* If this macro is defined, GNU CC gathers statistics about 
-   the number and kind of tree node it allocates during each 
-   run. The option '-fstats' will tell the compiler to print 
+/* If this macro is defined, GNU CC gathers statistics about
+   the number and kind of tree node it allocates during each
+   run. The option '-fstats' will tell the compiler to print
    these statistics about the sizes of it obstacks.  */
 /* This macro is undocumented in the "Using and Posting the
-   GNU Compiler Collection".  */   
+   GNU Compiler Collection".  */
 #define GATHER_STATISTICS
 
 /*
@@ -191,28 +191,28 @@ extern char unsp_packed_string_prefix;
    want to promote to DImode when in 64 bit mode, because that would
    prevent us from using the faster SImode multiply and divide
    instructions.  */
-   
+
 /* Following define is mips.h
 #define PROMOTE_MODE(MODE, UNSIGNEDP, TYPE)     \
   if (GET_MODE_CLASS (MODE) == MODE_INT         \
       && GET_MODE_SIZE (MODE) < 4)              \
-		    (MODE) = SImode; 
+                    (MODE) = SImode;
 */
 
-/* 
-#define PROMOTE_MODE(MODE,UNSIGNEDP,TYPE)	\
-  if (GET_MODE_CLASS(MODE)==MODE_INT		\
-      && GET_MODE_SIZE (MODE )<4 )		\
-      		(MODE)=HImode ;
-*/				    
 /*
-#define PROMOTE_MODE(MODE,UNSIGNEDP,TYPE)	QImode
+#define PROMOTE_MODE(MODE,UNSIGNEDP,TYPE)       \
+  if (GET_MODE_CLASS(MODE)==MODE_INT            \
+      && GET_MODE_SIZE (MODE )<4 )              \
+                (MODE)=HImode ;
+*/
+/*
+#define PROMOTE_MODE(MODE,UNSIGNEDP,TYPE)       QImode
 */
 
-/* Define this if function arguments should also be promoted using 
+/* Define this if function arguments should also be promoted using
    the above procedure.  */
 #define PROMOTE_FUNCTION_ARGS
-   
+
 /* Likewise, if the function return value is promoted.  */
 #define PROMOTE_FUNCTION_RETURN
 
@@ -228,9 +228,9 @@ extern char unsp_packed_string_prefix;
 /* Biggest alignment that any data type can require on this machine, in bits. */
 #define BIGGEST_ALIGNMENT 16
 
-/* If defined, the smallest alignment, in bits, that can be given to 
-   an object that can be referenced in one operation, without disturbing 
-   any nearby object.  Normally, this is BITS_PER_UNIT, but may be larger 
+/* If defined, the smallest alignment, in bits, that can be given to
+   an object that can be referenced in one operation, without disturbing
+   any nearby object.  Normally, this is BITS_PER_UNIT, but may be larger
    on machines that don't have byte or half-word store operations.  */
 #define MINIMUM_ATOMIC_ALIGNMENT 16
 
@@ -352,8 +352,8 @@ extern char unsp_packed_string_prefix;
   Order of allocation of registers
 */
 
-#define REG_ALLOC_ORDER         	\
-  { REG_R1, REG_R2, REG_R3, REG_R4,	\
+#define REG_ALLOC_ORDER                 \
+  { REG_R1, REG_R2, REG_R3, REG_R4,     \
     REG_REAL_BP, REG_SP, REG_SOFT_BP, REG_SOFT_AP }
 
 
@@ -368,15 +368,15 @@ extern char unsp_packed_string_prefix;
 
 /* None zero of a value of MODE fits into one or more registers
    starting with REGNO.  */
-#define HARD_REGNO_MODE_OK(REGNO,MODE) 			\
-  ((MODE == HImode || MODE == HFmode)			\
-   ? ((REGNO == REG_R1 || REGNO == REG_R3) ? 1 : 0) 	\
-   : ((MODE == QImode || MODE == VOIDmode) ? 1 : 0)) 
+#define HARD_REGNO_MODE_OK(REGNO,MODE)                  \
+  ((MODE == HImode || MODE == HFmode)                   \
+   ? ((REGNO == REG_R1 || REGNO == REG_R3) ? 1 : 0)     \
+   : ((MODE == QImode || MODE == VOIDmode) ? 1 : 0))
 /*
-#define HARD_REGNO_MODE_OK(REGNO,MODE) 			\
-  ((MODE == HImode || MODE == HFmode)			\
-   ? ((REGNO >= REG_R1 && REGNO <= REG_R3) ? 1 : 0) 	\
-   : ((MODE == QImode || MODE == VOIDmode) ? 1 : 0)) 
+#define HARD_REGNO_MODE_OK(REGNO,MODE)                  \
+  ((MODE == HImode || MODE == HFmode)                   \
+   ? ((REGNO >= REG_R1 && REGNO <= REG_R3) ? 1 : 0)     \
+   : ((MODE == QImode || MODE == VOIDmode) ? 1 : 0))
 #define HARD_REGNO_MODE_OK(REGNO, MODE) 1
 */
 
@@ -387,11 +387,11 @@ extern char unsp_packed_string_prefix;
    are always the same for any r, the MODES_TIEABLE_P(mode1, mode2)
    should be nonzero.  */
 #define MODES_TIEABLE_P(MODE1, MODE2) 1
-/*   
-#define MODES_TIEABLE_P(MODE1,MODE2) 			\
-	(MODE1 == MODE2  				\
-	 || (GET_MODE_CLASS (MODE1) == MODE_FLOAT	\
-	     && GET_MODE_CLASS (MODE2) == MODE_FLOAT))
+/*
+#define MODES_TIEABLE_P(MODE1,MODE2)                    \
+        (MODE1 == MODE2                                 \
+         || (GET_MODE_CLASS (MODE1) == MODE_FLOAT       \
+             && GET_MODE_CLASS (MODE2) == MODE_FLOAT))
 */
 
 /*
@@ -461,8 +461,8 @@ enum reg_class {
   "R3_REGS",            \
   "R4_REGS",            \
   "MUL_REGS",           \
-  "BASE_REGS",		\
-  "GP_REGS",       	\
+  "BASE_REGS",          \
+  "GP_REGS",            \
   "ALL_REGS"            \
 }
 
@@ -476,8 +476,8 @@ enum reg_class {
   0x0008, /* R3_REGS */         \
   0x0010, /* R4_REGS */         \
   0x0018, /* MUL_REGS */        \
-  0x00E0, /* BASE_REGS */		\
-  0x001E, /* GP_REGS */		\
+  0x00E0, /* BASE_REGS */               \
+  0x001E, /* GP_REGS */         \
   0x00FF  /* ALL_REGS */        \
 }
 
@@ -488,11 +488,11 @@ enum reg_class {
 #define REGNO_REG_CLASS(REGNO)          \
  ((REGNO) == REG_SP ? ALL_REGS  :       \
   (REGNO) == REG_R1 ? R1R2_REGS :       \
-  (REGNO) == REG_R2 ? R1R2_REGS :	\
-  (REGNO) == REG_R3 ? R3_REGS   :	\
-  (REGNO) == REG_R4 ? R4_REGS   :	\
-  (REGNO) == REG_REAL_BP ? BASE_REGS :	\
-  (REGNO) == FRAME_POINTER_REGNUM ? BASE_REGS :	\
+  (REGNO) == REG_R2 ? R1R2_REGS :       \
+  (REGNO) == REG_R3 ? R3_REGS   :       \
+  (REGNO) == REG_R4 ? R4_REGS   :       \
+  (REGNO) == REG_REAL_BP ? BASE_REGS :  \
+  (REGNO) == FRAME_POINTER_REGNUM ? BASE_REGS : \
   (REGNO) == ARG_POINTER_REGNUM   ? BASE_REGS : NO_REGS)
 
 /* A macro whose definition is the name of the class to which a
@@ -518,16 +518,16 @@ enum reg_class {
   ((C) == 'c' ? R3_REGS   :             \
    (C) == 'd' ? R4_REGS   :             \
    (C) == 'e' ? MUL_REGS  :             \
-   (C) == 'h' ? R1R2_REGS :		\
+   (C) == 'h' ? R1R2_REGS :             \
    (C) == 'f' ? GP_REGS   : NO_REGS)
 
 /* A C expression which is nonzero if register REGNO is suitable for use
    as a base register in operand addresses.  It may be either a suitable
    hard register or a pseudo register that has been allocated such a
    hard register.  */
-#define REGNO_OK_FOR_BASE_P(NUM)	\
-  ((NUM) == REG_REAL_BP 		\
-   || (NUM) == FRAME_POINTER_REGNUM 	\
+#define REGNO_OK_FOR_BASE_P(NUM)        \
+  ((NUM) == REG_REAL_BP                 \
+   || (NUM) == FRAME_POINTER_REGNUM     \
    || (NUM) == ARG_POINTER_REGNUM)
 
 
@@ -538,7 +538,7 @@ enum reg_class {
    in class CLASS, return the class of reg to actually use.
    In general this is just CLASS; but on some machines
    in some cases it is preferable to use a more restrictive class.  */
-#define PREFERRED_RELOAD_CLASS(X,CLASS) (CLASS)	
+#define PREFERRED_RELOAD_CLASS(X,CLASS) (CLASS)
 
 /* When defined, the compiler allows registers explicitly used in the
    rtl to be used as spill registers but prevents the compiler from
@@ -559,24 +559,24 @@ enum reg_class {
    pseudo to another register.  If there would not be another
    register available for reallocation, you should not change the
    definition of this macro since the only effect of such a
-   definition would be to slow down register allocation.  */	
+   definition would be to slow down register allocation.  */
 /*
-#define CLASS_LIKELY_SPILLED_P(CLASS) 	\
-  ((CLASS) == R3_REGS			\
-   || (CLASS) == R4_REGS		\
-   || (CLASS) == MUL_REGS		\
-   || (CLASS) == BP_REGS		\
+#define CLASS_LIKELY_SPILLED_P(CLASS)   \
+  ((CLASS) == R3_REGS                   \
+   || (CLASS) == R4_REGS                \
+   || (CLASS) == MUL_REGS               \
+   || (CLASS) == BP_REGS                \
    || (CLASS) == GP_REGS)
 */
 /* #define CLASS_LIKELY_SPILLED_P(CLASS) 1 */
 
 /*
-#define CLASS_LIKELY_SPILLED_P(CLASS)	\
-  ((CLASS == R1_REG)			\
-    || (CLASS == R2_REG)		\
-    || (CLASS == R3_REG) 		\
-    || (CLASS == R4_REG) 		\
-    || (CLASS == RL1_REGS)		\
+#define CLASS_LIKELY_SPILLED_P(CLASS)   \
+  ((CLASS == R1_REG)                    \
+    || (CLASS == R2_REG)                \
+    || (CLASS == R3_REG)                \
+    || (CLASS == R4_REG)                \
+    || (CLASS == RL1_REGS)              \
     || (CLASS == RL2_REGS))
 */
 
@@ -586,9 +586,9 @@ enum reg_class {
    since class doesn't make any difference. */
 #define CLASS_MAX_NREGS(CLASS,MODE) GET_MODE_SIZE(MODE)
 /*
-#define CLASS_MAX_NREGS(CLASS,MODE) 					\
-  (MODE == QImode || MODE == VOIDmode) ? 1 :				\
-  ((MODE == HImode || MODE == HFmode) && (CLASS == GP_REGS)) ? 1 :	\
+#define CLASS_MAX_NREGS(CLASS,MODE)                                     \
+  (MODE == QImode || MODE == VOIDmode) ? 1 :                            \
+  ((MODE == HImode || MODE == HFmode) && (CLASS == GP_REGS)) ? 1 :      \
   (MODE == SImode) ? 4 : 2
 */
 /*
@@ -596,7 +596,7 @@ enum reg_class {
   (MODE == QImode || MODE == VOIDmode) ? 1 :
   ((MODE == HImode || MODE == HFmode) && CLASS == GP_REGS) : 1
   (MODE == HImode || MODE == HFmode) ? 2 :
-  (MODE == SImode) ? 4 
+  (MODE == SImode) ? 4
 */
 
 /* The letters I, J, K, L, M, N, O, and P in a register constraint
@@ -622,17 +622,17 @@ enum reg_class {
    The machine description macro `EXTRA_CONSTRAINT' is passed the
    operand as its first argument and the constraint letter as its
    second operand.  */
-#define EXTRA_CONSTRAINT(OP,C)				\
-  ((C) == 'Q' ? direct16_memory_operand(OP, VOIDmode) :		\
-   (C) == 'R' ? non_direct16_memory_operand(OP, VOIDmode) :	\
+#define EXTRA_CONSTRAINT(OP,C)                          \
+  ((C) == 'Q' ? direct16_memory_operand(OP, VOIDmode) :         \
+   (C) == 'R' ? non_direct16_memory_operand(OP, VOIDmode) :     \
    (C) == 'S' ? lvalue_operand(OP, VOIDmode) : 0)
 extern int direct16_memory_operand ();
 extern int non_direct16_memory_operand ();
 extern int lvalue_operand ();
 /*
 #define EXTRA_CONSTRAINT(OP, C)                           \
-	((C) == 'R' ? symbolic_address_p(OP)  :           \
-	 (C) == 'P' ? part_memory_operand(OP) : 0)
+        ((C) == 'R' ? symbolic_address_p(OP)  :           \
+         (C) == 'P' ? part_memory_operand(OP) : 0)
 extern int symbolic_address_p ();
 extern int part_memory_operand ();
 */
@@ -645,11 +645,11 @@ extern int part_memory_operand ();
    makes the stack pointer a smaller address.  */
 #define STACK_GROWS_DOWNWARD
 
-/* Define this macro if the addresses of local variable slots 
+/* Define this macro if the addresses of local variable slots
    are at negative offsets from the frame pointer.  */
 /* #define FRAME_GROWS_DOWNWARD */
 
-/* Define this macro if successive arguments to a function 
+/* Define this macro if successive arguments to a function
    occupy decreasing addresses on the stack.  */
 /* #define ARGS_GROW_DOWNWARD */
 
@@ -659,12 +659,12 @@ extern int part_memory_operand ();
    FREE location on the stack.  */
 /* This macro is undocumented in the "Using and Posting the
    GNU Compiler Collection".  */
-#define STACK_PUSH_CODE POST_DEC 
+#define STACK_PUSH_CODE POST_DEC
 
-/* Offset from the frame pointer to the first local variable slot 
+/* Offset from the frame pointer to the first local variable slot
    to be allocated.  If FRAME_GROWS_DOWNWARD, find the next slot's
-   offset by subtracting the first slot's length from 
-   STARTING_FRAME_OFFSET.  Otherwise, it is found by adding the 
+   offset by subtracting the first slot's length from
+   STARTING_FRAME_OFFSET.  Otherwise, it is found by adding the
    length of the first slot to the value STARTING_FRAME_OFFSET.  */
 #define STARTING_FRAME_OFFSET 0
 
@@ -673,7 +673,7 @@ extern int part_memory_operand ();
 /* This seems nonsense because outgoing arguments are placed at r1 */
 #define STACK_POINTER_OFFSET 0
 
-/* Offset from the argument pointer register to the 
+/* Offset from the argument pointer register to the
    first argument's address.  */
 #define FIRST_PARM_OFFSET(FNDECL) 0
 
@@ -684,16 +684,16 @@ extern int part_memory_operand ();
    `RETURN_ADDR_IN_PREVIOUS_FRAME' is defined.  */
 /* After the prologue, RA is at [FRAME] (that is, [BP])
    in the current frame.  */
-#define RETURN_ADDR_RTX(COUNT, FRAME)			\
-  ((COUNT) == 0						\
-   ? gen_rtx_MEM (Pmode, gen_rtx_PLUS (   		\
-                  Pmode, arg_pointer_rtx, GEN_INT (0)))	\
+#define RETURN_ADDR_RTX(COUNT, FRAME)                   \
+  ((COUNT) == 0                                         \
+   ? gen_rtx_MEM (Pmode, gen_rtx_PLUS (                 \
+                  Pmode, arg_pointer_rtx, GEN_INT (0))) \
    : gen_rtx_MEM (Pmode, gen_rtx_PLUS (Pmode, (FRAME), GEN_INT (0))))
 /*
 #define RETURN_ADDR_RTX(COUNT, FRAME)                           \
   (COUNT == 0                                                   \
    ? gen_rtx (MEM, Pmode,                                       \
-	      gen_rtx (PLUS, Pmode, (FRAME), GEN_INT(0)))       \
+              gen_rtx (PLUS, Pmode, (FRAME), GEN_INT(0)))       \
    : NULL_RTX)
 */
 
@@ -708,7 +708,7 @@ extern int part_memory_operand ();
 /* Before the prologue, RA is at [SP+2].  */
 #define INCOMING_RETURN_ADDR_RTX                                \
    gen_rtx (MEM, VOIDmode, gen_rtx (PLUS, VOIDmode,             \
-	    gen_rtx (REG, VOIDmode, STACK_POINTER_REGNUM), GEN_INT(2)))
+            gen_rtx (REG, VOIDmode, STACK_POINTER_REGNUM), GEN_INT(2)))
 
 /* A C expression whose value is an integer giving the offset, in
    bytes, from the value of the stack pointer register to the top of
@@ -776,19 +776,19 @@ extern int part_memory_operand ();
    the frame pointer has been eliminated.
 
    In this case, you might specify:
-	#define ELIMINABLE_REGS  \
-	{{ARG_POINTER_REGNUM, STACK_POINTER_REGNUM}, \
-	 {ARG_POINTER_REGNUM, FRAME_POINTER_REGNUM}, \
-	 {FRAME_POINTER_REGNUM, STACK_POINTER_REGNUM}}
+        #define ELIMINABLE_REGS  \
+        {{ARG_POINTER_REGNUM, STACK_POINTER_REGNUM}, \
+         {ARG_POINTER_REGNUM, FRAME_POINTER_REGNUM}, \
+         {FRAME_POINTER_REGNUM, STACK_POINTER_REGNUM}}
 
    Note that the elimination of the argument pointer with the stack
    pointer is specified first since that is the preferred elimination.  */
-#define ELIMINABLE_REGS         			\
-  {{ARG_POINTER_REGNUM, HARD_FRAME_POINTER_REGNUM},	\
-   {FRAME_POINTER_REGNUM, HARD_FRAME_POINTER_REGNUM},	\
-   {ARG_POINTER_REGNUM, STACK_POINTER_REGNUM},		\
+#define ELIMINABLE_REGS                                 \
+  {{ARG_POINTER_REGNUM, HARD_FRAME_POINTER_REGNUM},     \
+   {FRAME_POINTER_REGNUM, HARD_FRAME_POINTER_REGNUM},   \
+   {ARG_POINTER_REGNUM, STACK_POINTER_REGNUM},          \
    {FRAME_POINTER_REGNUM, STACK_POINTER_REGNUM}}
-   
+
 /* A C expression that returns non-zero if the compiler is allowed to
    try to replace register number FROM-REG with register number
    TO-REG.  This macro need only be defined if `ELIMINABLE_REGS' is
@@ -842,9 +842,9 @@ extern int initial_elimination_offset ();
      (otherwise it is an extra parameter matching an ellipsis).  */
 #define FUNCTION_ARG(CUM, MODE, TYPE, NAMED) 0
 
-/* Define as a C expression that evaluates to nonzero if 
-   we do not know how to pass TYPE solely in registers. 
-   The file `expr.h' defines a definition that is usually 
+/* Define as a C expression that evaluates to nonzero if
+   we do not know how to pass TYPE solely in registers.
+   The file `expr.h' defines a definition that is usually
    appropriate, refer to `expr.h' for additional documentation.  */
 #define MUST_PASS_IN_STACK(MODE, TYPE) 1
 
@@ -935,11 +935,11 @@ extern int initial_elimination_offset ();
    passed as an "invisible" first argument.  */
 #define STRUCT_VALUE 0
 
-/* If the incoming location is not a register, then you should define 
-   STRUCT_VALUE_INCOMING as an expression for an RTX for where the 
-   called function should find the value.  If it should find the value 
-   on the stack, define this to create a MEM which refers to the frame 
-   pointer.  A definition of 0 means that the address is passed as an 
+/* If the incoming location is not a register, then you should define
+   STRUCT_VALUE_INCOMING as an expression for an RTX for where the
+   called function should find the value.  If it should find the value
+   on the stack, define this to create a MEM which refers to the frame
+   pointer.  A definition of 0 means that the address is passed as an
    "invisible" first argument.  */
 #define STRUCT_VALUE_INCOMING 0
 
@@ -989,7 +989,7 @@ extern void function_epilogue ();
    basic block profiling info, if that has not already been done.  */
 #define FUNCTION_BLOCK_PROFILER(FILE, LABELNO)  \
   fprintf (FILE, "\t// got into FUNCTION_BLOCK_PROFILER with label #%d\n", \
-	   LABELNO)
+           LABELNO)
 
 /* Output assembler code to FILE to increment the entry-count for
    the BLOCKNO'th basic block in this source file.  */
@@ -1014,26 +1014,26 @@ extern void function_epilogue ();
    FNADDR is an RTX for the address of the function's pure code.
    CHAIN is an RTX for the static chain value for the function.  */
 /* We generate a two-instructions program at address TRAMP :
-	R1 = CHAIN;
-	PC = FNADDR;                                    */
+        R1 = CHAIN;
+        PC = FNADDR;                                    */
 #define INITIALIZE_TRAMPOLINE(TRAMP, FNADDR, CHAIN)                     \
 {                                                                       \
   emit_move_insn (gen_rtx_MEM (QImode, TRAMP),                          \
-		  GEN_INT(0x9309));                                     \
+                  GEN_INT(0x9309));                                     \
   emit_move_insn (gen_rtx_MEM (QImode, plus_constant (TRAMP, 1)),       \
-		  CHAIN);                                               \
+                  CHAIN);                                               \
   emit_move_insn (gen_rtx_MEM (QImode, plus_constant (TRAMP, 6)),       \
-		  GEN_INT(0x9F0F));                                     \
+                  GEN_INT(0x9F0F));                                     \
   emit_move_insn (gen_rtx_MEM (QImode, plus_constant (TRAMP, 8)),       \
-		  FNADDR);                                              \
+                  FNADDR);                                              \
 }
 
 /*
   Implicit Calls to Library Routines
 */
 
-/* Define this macro if GNU CC should generate calls to the System V 
-   (and ANSI C) library functions memcpy and memset rather than the 
+/* Define this macro if GNU CC should generate calls to the System V
+   (and ANSI C) library functions memcpy and memset rather than the
    BSD functions bcopy and bzero.  */
 #define TARGET_MEM_FUNCTIONS
 
@@ -1053,9 +1053,9 @@ extern void function_epilogue ();
 */
 
 /* Recognize any constant value that is a valid address.  */
-#define CONSTANT_ADDRESS_P(X)		  			\
-  (GET_CODE (X) == LABEL_REF || GET_CODE (X) == SYMBOL_REF	\
-   || GET_CODE (X) == CONST_INT || GET_CODE (X) == CONST || CONSTANT_P (X)) 
+#define CONSTANT_ADDRESS_P(X)                                   \
+  (GET_CODE (X) == LABEL_REF || GET_CODE (X) == SYMBOL_REF      \
+   || GET_CODE (X) == CONST_INT || GET_CODE (X) == CONST || CONSTANT_P (X))
 /*
 #define CONSTANT_ADDRESS_P(X) \
   (CONSTANT_P (X) || GET_CODE (X) == SYMBOL_REF)
@@ -1074,11 +1074,11 @@ extern void function_epilogue ();
    for a memory operand of mode MODE.  */
 #define GO_IF_LEGITIMATE_ADDRESS(MODE, X, LABEL)                \
 {                                                               \
-  if (TARGET_DEBUG_UNSP_GCC)					\
-    {								\
-      fprintf (stderr, "In REG_OK_STRICT");  			\
+  if (TARGET_DEBUG_UNSP_GCC)                                    \
+    {                                                           \
+      fprintf (stderr, "In REG_OK_STRICT");                     \
       debug_rtx (X);                                            \
-    }								\
+    }                                                           \
   /* [r++], [r--], [++r] addressing modes */                    \
   if ((GET_CODE (X) == PRE_INC                                  \
        || GET_CODE (X) == POST_INC                              \
@@ -1086,25 +1086,25 @@ extern void function_epilogue ();
       && REG_P (XEXP (X, 0))                                    \
       && REGNO (XEXP (X, 0)) < FIRST_PSEUDO_REGISTER)           \
     goto LABEL;                                                 \
-								\
+                                                                \
   /* Register Indirect addressing */                            \
   if (REG_P (X) && REGNO (X) < FIRST_PSEUDO_REGISTER)           \
     goto LABEL;                                                 \
-								\
+                                                                \
   /* Direct addressing */                                       \
   if (CONSTANT_ADDRESS_P (X))                                   \
     goto LABEL;                                                 \
-								\
+                                                                \
   /* u'nSP base register offset can only less than 64 */        \
   if (GET_CODE (X) == PLUS                                      \
       && GET_CODE (XEXP (X, 0)) == REG                          \
       && REG_OK_FOR_BASE_P (XEXP (X, 0))                        \
       && GET_CODE (XEXP (X, 1)) == CONST_INT                    \
-      && INTVAL (XEXP (X, 1)) >= 0 				\
-      && INTVAL (XEXP (X, 1)) <= (64 - GET_MODE_SIZE(MODE))) 	\
+      && INTVAL (XEXP (X, 1)) >= 0                              \
+      && INTVAL (XEXP (X, 1)) <= (64 - GET_MODE_SIZE(MODE)))    \
     goto LABEL;                                                 \
-  if (TARGET_DEBUG_UNSP_GCC)					\
-    fprintf (stderr, "is NOT a legitimate address\n\n");	\
+  if (TARGET_DEBUG_UNSP_GCC)                                    \
+    fprintf (stderr, "is NOT a legitimate address\n\n");        \
 }
 /*
       && INTVAL (XEXP (X, 1)) >= 0                              \
@@ -1121,36 +1121,36 @@ extern void function_epilogue ();
    for a memory operand of mode MODE.  */
 #define GO_IF_LEGITIMATE_ADDRESS(MODE, X, LABEL)                \
 {                                                               \
-  if (TARGET_DEBUG_UNSP_GCC)					\
-    {								\
-      fprintf (stderr, "In non REG_OK_STRICT\n"); 		\
+  if (TARGET_DEBUG_UNSP_GCC)                                    \
+    {                                                           \
+      fprintf (stderr, "In non REG_OK_STRICT\n");               \
       debug_rtx (X);                                            \
-    }								\
+    }                                                           \
   /* [r++], [r--], [++r] addressing modes */                    \
   if ((GET_CODE (X) == PRE_INC                                  \
        || GET_CODE (X) == POST_INC                              \
        || GET_CODE (X) == POST_DEC)                             \
       && REG_P (XEXP (X, 0)))                                   \
     goto LABEL;                                                 \
-								\
+                                                                \
   /* Register Indirect addressing */                            \
   if (REG_P (X))                                                \
     goto LABEL;                                                 \
-								\
+                                                                \
   /* Direct addressing */                                       \
   if (CONSTANT_ADDRESS_P (X))                                   \
     goto LABEL;                                                 \
-								\
+                                                                \
   /* u'nSP base register offset can only less than 64 */        \
   if (GET_CODE (X) == PLUS                                      \
       && GET_CODE (XEXP (X, 0)) == REG                          \
-      && REG_OK_FOR_BASE_P (XEXP (X, 0))			\
+      && REG_OK_FOR_BASE_P (XEXP (X, 0))                        \
       && GET_CODE (XEXP (X, 1)) == CONST_INT                    \
-      && INTVAL (XEXP (X, 1)) >= 0 				\
-      && INTVAL (XEXP (X, 1)) <= (64 - GET_MODE_SIZE(MODE)))	\
+      && INTVAL (XEXP (X, 1)) >= 0                              \
+      && INTVAL (XEXP (X, 1)) <= (64 - GET_MODE_SIZE(MODE)))    \
     goto LABEL;                                                 \
-  if (TARGET_DEBUG_UNSP_GCC)					\
-    fprintf (stderr, "illegitimate address\n\n"); 		\
+  if (TARGET_DEBUG_UNSP_GCC)                                    \
+    fprintf (stderr, "illegitimate address\n\n");               \
 }
 
 #endif /* REG_OK_STRICT */
@@ -1180,10 +1180,10 @@ extern void function_epilogue ();
 
   You may assume that ADDR is a valid address for the machine.  */
 
-#define GO_IF_MODE_DEPENDENT_ADDRESS(ADDR,LABEL)	\
-  if (GET_CODE (ADDR) == PRE_INC			\
-      || GET_CODE (ADDR) == POST_DEC     		\
-      || GET_CODE (ADDR) == POST_INC)			\
+#define GO_IF_MODE_DEPENDENT_ADDRESS(ADDR,LABEL)        \
+  if (GET_CODE (ADDR) == PRE_INC                        \
+      || GET_CODE (ADDR) == POST_DEC                    \
+      || GET_CODE (ADDR) == POST_INC)                   \
     goto LABEL
 /*
 #define GO_IF_MODE_DEPENDENT_ADDRESS(ADDR, LABEL)
@@ -1193,12 +1193,12 @@ extern void function_epilogue ();
    It is given that X saisifies CONSTANT_P or is a CONST_DOUBLE.  */
 #define LEGITIMATE_CONSTANT_P(X) 1
 /*
-#define LEGITIMATE_CONSTANT_P(X) 		\
-       ( GET_CODE(X) == CONST_INT  ?  1 :	\
-         GET_CODE(X) == SYMBOL_REF ?  1 :	\
-	 GET_CODE(X) == LABEL_REF  ?  1 :	\
-	 GET_CODE(X) == CONST	   ?  1 : 	\
-	 GET_CODE(X) == CONST_DOUBLE ?1 : 0 )
+#define LEGITIMATE_CONSTANT_P(X)                \
+       ( GET_CODE(X) == CONST_INT  ?  1 :       \
+         GET_CODE(X) == SYMBOL_REF ?  1 :       \
+         GET_CODE(X) == LABEL_REF  ?  1 :       \
+         GET_CODE(X) == CONST      ?  1 :       \
+         GET_CODE(X) == CONST_DOUBLE ?1 : 0 )
 */
 
 /*
@@ -1224,7 +1224,7 @@ extern void notice_update_cc ();
   case CONST_INT:                                               \
     if (GET_MODE (RTX) == QImode)                               \
       return (INTVAL (RTX) >= 0 && INTVAL (RTX) < 64) ? 1 : 2;  \
-    else	                                      		\
+    else                                                        \
       return 2;                                                 \
   case CONST:                                                   \
   case SYMBOL_REF:                                              \
@@ -1233,20 +1233,20 @@ extern void notice_update_cc ();
   case CONST_DOUBLE:                                            \
     return 2;
 
-/* This macro, if defined, is called for any case not handled by 
-   the RTX_COSTS or CONST_COSTS macros.  This eliminates the need 
-   to put case labels into the macro, but the code, or any functions 
-   it calls, must assume that the RTL in x could be of any type that 
-   has not already been handled.  The arguments are the same as for 
-   RTX_COSTS, and the macro should execute a return statement giving 
+/* This macro, if defined, is called for any case not handled by
+   the RTX_COSTS or CONST_COSTS macros.  This eliminates the need
+   to put case labels into the macro, but the code, or any functions
+   it calls, must assume that the RTL in x could be of any type that
+   has not already been handled.  The arguments are the same as for
+   RTX_COSTS, and the macro should execute a return statement giving
    the cost of any RTL expressions that it can handle.  The default cost
-   calculation is used for any RTL for which this macro does not 
+   calculation is used for any RTL for which this macro does not
    return a value.  */
-#define DEFAULT_RTX_COSTS(X, CODE, OUTER_CODE)		\
-  {							\
-    int rtx_cost = unsp_rtx_cost (X, CODE, OUTER_CODE);	\
-    if (rtx_cost != 0)					\
-      return rtx_cost;					\
+#define DEFAULT_RTX_COSTS(X, CODE, OUTER_CODE)          \
+  {                                                     \
+    int rtx_cost = unsp_rtx_cost (X, CODE, OUTER_CODE); \
+    if (rtx_cost != 0)                                  \
+      return rtx_cost;                                  \
   }
 extern int unsp_rtx_cost ();
 
@@ -1339,7 +1339,7 @@ extern int unsp_rtx_cost ();
    Increasing the value will always make code faster, but eventually
    incurs high cost in increased code size.
    If you don't define this, a reasonable default is used.  */
-/* #define MOVE_RATIO 2  */
+#define MOVE_RATIO 3
 
 /* Define this macro if it is as good or better to call a constant
    function address than to call an address kept in a register.  */
@@ -1371,7 +1371,7 @@ extern int unsp_rtx_cost ();
 
 #define EXTRA_SECTION_FUNCTIONS                 \
 extern void const_section ();                   \
-						\
+                                                \
 void                                            \
 const_section(void)                             \
 {                                               \
@@ -1424,29 +1424,29 @@ extern void unsp_asm_file_end ();
 
 /* Like block addresses, stabs line numbers are relative to the
    current function.  */
-#define ASM_OUTPUT_SOURCE_LINE(FILE, LINE)                      \
-if (write_symbols == DBX_DEBUG)                                 \
-  {                                                             \
-    static int sym_lineno = 1;                                  \
-    char buffer[256];                                           \
-								\
-    ASM_GENERATE_INTERNAL_LABEL (buffer, "LM", sym_lineno);     \
-    fprintf (FILE, ".debug\n\t.dw \'");                         \
-    fprintf (FILE, ".stabn 0x%x,0,%d,\',0,0\n", N_SLINE, LINE); \
-    fprintf (FILE, "\t.dd ");                                   \
-    assemble_name (FILE, buffer);                               \
-    putc ('-', FILE);                                           \
-    assemble_name (FILE, XSTR (XEXP (                           \
-      DECL_RTL (current_function_decl), 0), 0));                \
-    putc ('\n', FILE);                                          \
-    fprintf (FILE, "\t.dw ");                                   \
+#define ASM_OUTPUT_SOURCE_LINE(FILE, LINE)                              \
+if (write_symbols == DBX_DEBUG)                                         \
+  {                                                                     \
+    static int sym_lineno = 1;                                          \
+    char buffer[256];                                                   \
+                                                                        \
+    ASM_GENERATE_INTERNAL_LABEL (buffer, "LM", sym_lineno);             \
+    fprintf (FILE, ".debug\n\t.dw \'");                                 \
+    fprintf (FILE, ".stabn 0x%x,0,%d,\',0,0\n", N_SLINE, LINE);         \
+    fprintf (FILE, "\t.dd ");                                           \
+    assemble_name (FILE, buffer);                                       \
+    putc ('-', FILE);                                                   \
+    assemble_name (FILE, XSTR (XEXP (                                   \
+      DECL_RTL (current_function_decl), 0), 0));                        \
+    putc ('\n', FILE);                                                  \
+    fprintf (FILE, "\t.dw ");                                           \
     if (current_function_decl && UNSP_ISR_FLAG (current_function_decl)) \
-      fprintf (FILE, "0x0d,0x0a\n.text\n");                     \
-    else							\
-      fprintf (FILE, "0x0d,0x0a\n.code\n");                       \
-    force_data_section ();                                      \
-    ASM_OUTPUT_INTERNAL_LABEL (FILE, "LM", sym_lineno);         \
-    sym_lineno++;                                               \
+      fprintf (FILE, "0x0d,0x0a\n.text\n");                             \
+    else                                                                \
+      fprintf (FILE, "0x0d,0x0a\n.code\n");                             \
+    force_data_section ();                                              \
+    ASM_OUTPUT_INTERNAL_LABEL (FILE, "LM", sym_lineno);                 \
+    sym_lineno++;                                                       \
   }
 
 /* A C statement to output something to the assembler file to switch
@@ -1712,38 +1712,38 @@ extern void unsp_print_operand_address ();
   Open-ended hooks for DBX format
 */
 
-#define DBX_OUTPUT_LBRAC(FILE, NAME)                            \
-{                                                               \
-  fprintf (FILE, "%s 0x%x,0,0,\',0,0\n\t.dd ",                  \
-	   ASM_STABN_OP, N_LBRAC);                              \
-  assemble_name (FILE, NAME);                                   \
-  putc ('-', FILE);                                             \
-  assemble_name (FILE, XSTR (XEXP (                             \
-		 DECL_RTL (current_function_decl), 0), 0));     \
-  putc ('\n', FILE);                                            \
-  fprintf (FILE, "\t.dw ");                                     \
+#define DBX_OUTPUT_LBRAC(FILE, NAME)                                  \
+{                                                                     \
+  fprintf (FILE, "%s 0x%x,0,0,\',0,0\n\t.dd ",                        \
+           ASM_STABN_OP, N_LBRAC);                                    \
+  assemble_name (FILE, NAME);                                         \
+  putc ('-', FILE);                                                   \
+  assemble_name (FILE, XSTR (XEXP (                                   \
+                 DECL_RTL (current_function_decl), 0), 0));           \
+  putc ('\n', FILE);                                                  \
+  fprintf (FILE, "\t.dw ");                                           \
   if (current_function_decl && UNSP_ISR_FLAG (current_function_decl)) \
-    fprintf (FILE, "0x0d,0x0a\n.text\n");                     \
-  else							\
-    fprintf (FILE, "0x0d,0x0a\n.code\n");                       \
-  force_data_section ();                                        \
+    fprintf (FILE, "0x0d,0x0a\n.text\n");                             \
+  else                                                                \
+    fprintf (FILE, "0x0d,0x0a\n.code\n");                             \
+  force_data_section ();                                              \
 }
 
-#define DBX_OUTPUT_RBRAC(FILE, NAME)                            \
-{                                                               \
-  fprintf (FILE, "%s 0x%x,0,0,\',0,0\n\t.dd ",                  \
-	   ASM_STABN_OP, N_RBRAC);                              \
-  assemble_name (FILE, NAME);                                   \
-  putc ('-', FILE);                                             \
-  assemble_name (FILE,XSTR (XEXP (                              \
-		 DECL_RTL (current_function_decl), 0), 0));     \
-  putc ('\n', FILE);                                            \
-  fprintf (FILE, "\t.dw ");                                     \
+#define DBX_OUTPUT_RBRAC(FILE, NAME)                                  \
+{                                                                     \
+  fprintf (FILE, "%s 0x%x,0,0,\',0,0\n\t.dd ",                        \
+           ASM_STABN_OP, N_RBRAC);                                    \
+  assemble_name (FILE, NAME);                                         \
+  putc ('-', FILE);                                                   \
+  assemble_name (FILE,XSTR (XEXP (                                    \
+                 DECL_RTL (current_function_decl), 0), 0));           \
+  putc ('\n', FILE);                                                  \
+  fprintf (FILE, "\t.dw ");                                           \
   if (current_function_decl && UNSP_ISR_FLAG (current_function_decl)) \
-    fprintf (FILE, "0x0d,0x0a\n.text\n");                     \
-  else							\
-    fprintf (FILE, "0x0d,0x0a\n.code\n");                       \
-  force_data_section ();                                        \
+    fprintf (FILE, "0x0d,0x0a\n.text\n");                             \
+  else                                                                \
+    fprintf (FILE, "0x0d,0x0a\n.code\n");                             \
+  force_data_section ();                                              \
 }
 
 #define DBX_OUTPUT_FUNCTION_END(FILE, FUNC) \
@@ -1758,55 +1758,199 @@ extern void unsp_dbx_output_function_end ();
 
 #ifdef __CYGWIN__
 
-#define DBX_OUTPUT_MAIN_SOURCE_FILENAME(FILE, NAME)             \
-{                                                               \
-  ASM_GENERATE_INTERNAL_LABEL (ltext_label_name, "Ltext", 0);   \
-  fprintf (FILE, "%s ", ASM_STABS_OP);                          \
-  cygwin32_conv_to_full_win32_path (NAME, unsp_tmpstr);         \
-  fprintf (FILE, "\"%s\"", unsp_tmpstr);                        \
-  fprintf (FILE, ",0x%x,0,3,\',0,0,offset %s,seg %s,",          \
-    N_SO, &ltext_label_name[1], &ltext_label_name[1]);          \
+#define DBX_OUTPUT_MAIN_SOURCE_FILENAME(FILE, NAME)                   \
+{                                                                     \
+  ASM_GENERATE_INTERNAL_LABEL (ltext_label_name, "Ltext", 0);         \
+  fprintf (FILE, "%s ", ASM_STABS_OP);                                \
+  cygwin32_conv_to_full_win32_path (NAME, unsp_tmpstr);               \
+  fprintf (FILE, "\"%s\"", unsp_tmpstr);                              \
+  fprintf (FILE, ",0x%x,0,3,\',0,0,offset %s,seg %s,",                \
+    N_SO, &ltext_label_name[1], &ltext_label_name[1]);                \
   if (current_function_decl && UNSP_ISR_FLAG (current_function_decl)) \
-    fprintf (FILE, "0x0d,0x0a\n.text\n");                     \
-  else							\
-    fprintf (FILE, "0x0d,0x0a\n.code\n");                       \
-  text_section ();                                              \
-  ASM_OUTPUT_INTERNAL_LABEL (FILE, "Ltext", 0);                 \
+    fprintf (FILE, "0x0d,0x0a\n.text\n");                             \
+  else                                                                \
+    fprintf (FILE, "0x0d,0x0a\n.code\n");                             \
+  text_section ();                                                    \
+  ASM_OUTPUT_INTERNAL_LABEL (FILE, "Ltext", 0);                       \
 }
 
-#define DBX_OUTPUT_MAIN_SOURCE_DIRECTORY(FILE, NAME)            \
-{                                                               \
-  fprintf (FILE, "%s ", ASM_STABS_OP);                          \
-  cygwin32_conv_to_full_win32_path (NAME, unsp_tmpstr);         \
-  fprintf (FILE, "\"%s\"", unsp_tmpstr);                        \
-  fprintf (FILE, ",0x%x,0,3,\',0,0,offset %s,seg %s,",          \
-     N_SO, &ltext_label_name[1],&ltext_label_name[1]);          \
+#define DBX_OUTPUT_MAIN_SOURCE_DIRECTORY(FILE, NAME)                  \
+{                                                                     \
+  fprintf (FILE, "%s ", ASM_STABS_OP);                                \
+  cygwin32_conv_to_full_win32_path (NAME, unsp_tmpstr);               \
+  fprintf (FILE, "\"%s\"", unsp_tmpstr);                              \
+  fprintf (FILE, ",0x%x,0,3,\',0,0,offset %s,seg %s,",                \
+     N_SO, &ltext_label_name[1],&ltext_label_name[1]);                \
   if (current_function_decl && UNSP_ISR_FLAG (current_function_decl)) \
-    fprintf (FILE, "0x0d,0x0a\n.text\n");                     \
-  else							\
-    fprintf (FILE, "0x0d,0x0a\n.code\n");                       \
-  force_data_section ();                                        \
+    fprintf (FILE, "0x0d,0x0a\n.text\n");                             \
+  else                                                                \
+    fprintf (FILE, "0x0d,0x0a\n.code\n");                             \
+  force_data_section ();                                              \
 }
 
-#define DBX_OUTPUT_SOURCE_FILENAME(FILE, NAME)                  \
-{                                                               \
-  ASM_GENERATE_INTERNAL_LABEL (ltext_label_name, "Ltext",       \
-             source_label_number);                              \
-  fprintf (FILE, "%s ", ASM_STABS_OP);                          \
-  cygwin32_conv_to_full_win32_path (NAME, unsp_tmpstr);         \
-  fprintf (FILE, "\"%s\"", unsp_tmpstr);                        \
-  fprintf (FILE, ",0x%x,0,0,\',0,0,offset %s, seg %s,",         \
-    N_SOL, &ltext_label_name[1], &ltext_label_name[1]);         \
+#define DBX_OUTPUT_SOURCE_FILENAME(FILE, NAME)                        \
+{                                                                     \
+  ASM_GENERATE_INTERNAL_LABEL (ltext_label_name, "Ltext",             \
+             source_label_number);                                    \
+  fprintf (FILE, "%s ", ASM_STABS_OP);                                \
+  cygwin32_conv_to_full_win32_path (NAME, unsp_tmpstr);               \
+  fprintf (FILE, "\"%s\"", unsp_tmpstr);                              \
+  fprintf (FILE, ",0x%x,0,0,\',0,0,offset %s, seg %s,",               \
+    N_SOL, &ltext_label_name[1], &ltext_label_name[1]);               \
   if (current_function_decl && UNSP_ISR_FLAG (current_function_decl)) \
-    fprintf (FILE, "0x0d,0x0a\n.text\n");                     \
-  else							\
-    fprintf (FILE, "0x0d,0x0a\n.code\n");                       \
-  text_section ();                                              \
-  ASM_OUTPUT_INTERNAL_LABEL (FILE, "Ltext", source_label_number); \
-  source_label_number++;                                        \
+    fprintf (FILE, "0x0d,0x0a\n.text\n");                             \
+  else                                                                \
+    fprintf (FILE, "0x0d,0x0a\n.code\n");                             \
+  text_section ();                                                    \
+  ASM_OUTPUT_INTERNAL_LABEL (FILE, "Ltext", source_label_number);     \
+  source_label_number++;                                              \
 }
 
 #else
+
+#define DBX_OUTPUT_MAIN_SOURCE_FILENAME(FILE, NAME)               \
+{                                                                 \
+  char *c;                                                        \
+  int last;                                                       \
+  ASM_GENERATE_INTERNAL_LABEL (ltext_label_name, "Ltext", 0);     \
+  fprintf (FILE, "%s ", ASM_STABS_OP);                            \
+  putc ('\"', FILE);                                              \
+  for (c = (NAME), last = 0; *c != 0; c++)                        \
+    {                                                             \
+      if (*c == '\'')                                             \
+        {                                                         \
+          if (*c == (NAME))                                       \
+            fprintf (FILE, "0x27");                               \
+          else if (last == 1)                                     \
+            fprintf (FILE, ",0x27");                              \
+          else                                                    \
+            {                                                     \
+              fprintf (FILE, "',0x27");                           \
+              last = 1;                                           \
+            }                                                     \
+        }                                                         \
+      else                                                        \
+        {                                                         \
+          if (last == 1)                                          \
+            {                                                     \
+              fprintf (FILE, ",'");                               \
+              last = 0;                                           \
+            }                                                     \
+          if (*c == '\"')                                         \
+            fprintf (FILE, "\\%c", *c);                           \
+          else if (*c == '\\')                                    \
+            putc ('/', FILE);                                     \
+          else                                                    \
+            putc (*c, FILE);                                      \
+        }                                                         \
+    }                                                             \
+  putc ('\"', FILE);                                              \
+  fprintf (FILE, ",0x%x,0,3,\',0,0,offset %s,seg %s,",            \
+    N_SO, &ltext_label_name[1], &ltext_label_name[1]);            \
+  fprintf (FILE, "0x0d,0x0a\n.code\n");                           \
+  text_section ();                                                \
+  ASM_OUTPUT_INTERNAL_LABEL (FILE, "Ltext", 0);                   \
+}
+
+#define DBX_OUTPUT_MAIN_SOURCE_DIRECTORY(FILE, NAME)              \
+{                                                                 \
+  char *c;                                                        \
+  int last;                                                       \
+  fprintf (FILE, "%s ", ASM_STABS_OP);                            \
+  putc ('\"', FILE);                                              \
+  for (c = (NAME), last = 0; *c != 0; c++)                        \
+    {                                                             \
+      if (*c == '\'')                                             \
+        {                                                         \
+          if (*c == (NAME))                                       \
+            fprintf (FILE, "0x27");                               \
+          else if (last == 1)                                     \
+            fprintf (FILE, ",0x27");                              \
+          else                                                    \
+            {                                                     \
+              fprintf (FILE, "',0x27");                           \
+              last = 1;                                           \
+            }                                                     \
+        }                                                         \
+      else                                                        \
+        {                                                         \
+          if (last == 1)                                          \
+            {                                                     \
+              fprintf (FILE, ",'");                               \
+              last = 0;                                           \
+            }                                                     \
+          if (*c == '\"')                                         \
+            fprintf (FILE, "\\%c", *c);                           \
+          else if (*c == '\\')                                    \
+            putc ('/', FILE);                                     \
+          else                                                    \
+            putc (*c, FILE);                                      \
+        }                                                         \
+    }                                                             \
+  putc ('\"', FILE);                                              \
+  fprintf (FILE, ",0x%x,0,3,\',0,0,offset %s,seg %s,",            \
+     N_SO, &ltext_label_name[1],&ltext_label_name[1]);            \
+  fprintf (FILE, "0x0d,0x0a\n.code\n");                           \
+  force_data_section ();                                          \
+}
+
+#define DBX_OUTPUT_SOURCE_FILENAME(FILE, NAME)                    \
+{                                                                 \
+  char *c;                                                        \
+  int last;                                                       \
+  ASM_GENERATE_INTERNAL_LABEL (ltext_label_name, "Ltext",         \
+             source_label_number);                                \
+  fprintf (FILE, "%s ", ASM_STABS_OP);                            \
+  putc ('\"', FILE);                                              \
+  for (c = (NAME), last = 0; *c != 0; c++)                        \
+    {                                                             \
+      if (*c == '\'')                                             \
+        {                                                         \
+          if (*c == (NAME))                                       \
+            fprintf (FILE, "0x27");                               \
+          else if (last == 1)                                     \
+            fprintf (FILE, ",0x27");                              \
+          else                                                    \
+            {                                                     \
+              fprintf (FILE, "',0x27");                           \
+              last = 1;                                           \
+            }                                                     \
+        }                                                         \
+      else                                                        \
+        {                                                         \
+          if (last == 1)                                          \
+            {                                                     \
+              fprintf (FILE, ",'");                               \
+              last = 0;                                           \
+            }                                                     \
+          if (*c == '\"')                                         \
+            fprintf (FILE, "\\%c", *c);                           \
+          else if (*c == '\\')                                    \
+            putc ('/', FILE);                                     \
+          else                                                    \
+            putc (*c, FILE);                                      \
+        }                                                         \
+    }                                                             \
+  putc ('\"', FILE);                                              \
+  fprintf (FILE, ",0x%x,0,0,\',0,0,offset %s, seg %s,",           \
+    N_SOL, &ltext_label_name[1], &ltext_label_name[1]);           \
+  fprintf (FILE, "0x0d,0x0a\n.code\n");                           \
+  text_section ();                                                \
+  ASM_OUTPUT_INTERNAL_LABEL (FILE, "Ltext", source_label_number); \
+  source_label_number++;                                          \
+}
+
+#if 0
+
+/* 2004/09/06:
+   Assembler merges .debug section and .stab section separately.
+   If we output FILE information not in the same way as
+   other debug info, the IDE will be confused by these codes:
+   int main()
+   {
+   #include "abc.c"
+   }
+*/
 
 #define DBX_OUTPUT_MAIN_SOURCE_FILENAME(FILE, NAME)             \
 {                                                               \
@@ -1841,6 +1985,8 @@ extern void unsp_dbx_output_function_end ();
   source_label_number++;                                        \
 }
 
+#endif
+
 #if 0
 /* 2002/05/08:
    Change to use .stabs format to fix bug.
@@ -1850,7 +1996,7 @@ extern void unsp_dbx_output_function_end ();
 {                                                               \
   ASM_GENERATE_INTERNAL_LABEL (ltext_label_name, "Ltext", 0);   \
   fprintf (FILE, "%s ", ASM_STABS_OP);                          \
-  output_quoted_string (FILE, NAME);				\
+  output_quoted_string (FILE, NAME);                            \
   fprintf (FILE, ",0x%x,0,3,\',0,0,offset %s,seg %s,",          \
     N_SO, &ltext_label_name[1], &ltext_label_name[1]);          \
   fprintf (FILE, "0x0d,0x0a\n.code\n");                         \

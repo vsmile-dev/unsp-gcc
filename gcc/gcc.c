@@ -4984,7 +4984,7 @@ main (argc, argv)
 
 #ifdef unSP
 #ifdef __MINGW32__
-  printf ("Sunplus u'nSP C Compiler - Ver.%s\n", UNSP_VERSION_STRING);
+  printf ("Sunplus u'nSP C Compiler - Ver. %s\n", UNSP_VERSION_STRING);
 #endif
 #endif
   p = argv[0] + strlen (argv[0]);

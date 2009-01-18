@@ -301,12 +301,20 @@ combine_strings (strings)
 
       value = make_node (STRING_CST);
       TREE_STRING_POINTER (value) = p;
+#ifdef unSP
+      TREE_STRING_LENGTH (value) = (*p == PACKED_STRING_PREFIX ? (length + 1) >> 1 : length);
+#else
       TREE_STRING_LENGTH (value) = length;
+#endif
     }
   else
     {
       value = strings;
+#ifdef unSP
+      length = TREE_STRING_PACKED_LENGTH (value);
+#else
       length = TREE_STRING_LENGTH (value);
+#endif
       if (TREE_TYPE (value) == wchar_array_type_node)
 	wide_flag = 1;
     }
@@ -1449,7 +1457,11 @@ check_format_info (info, params)
   if (TREE_CODE (format_tree) != STRING_CST)
     return;
   format_chars = TREE_STRING_POINTER (format_tree);
+#ifdef unSP
+  format_length = TREE_STRING_PACKED_LENGTH (format_tree);
+#else
   format_length = TREE_STRING_LENGTH (format_tree);
+#endif
   if (format_length <= 1)
     warning ("zero-length format string");
   if (format_chars[--format_length] != 0)

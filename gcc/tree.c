@@ -1532,7 +1532,11 @@ build_string (len, str)
      deferring constant output in varasm.c.  */
 
   register tree s = make_node (STRING_CST);
+#ifdef unSP
+  TREE_STRING_LENGTH (s) = (*str == PACKED_STRING_PREFIX ? (len + 1) >> 1 : len);
+#else
   TREE_STRING_LENGTH (s) = len;
+#endif
   TREE_STRING_POINTER (s) = obstack_copy0 (saveable_obstack, str, len);
   return s;
 }
@@ -4006,9 +4010,20 @@ simple_cst_equal (t1, t2)
       return REAL_VALUES_IDENTICAL (TREE_REAL_CST (t1), TREE_REAL_CST (t2));
 
     case STRING_CST:
+#ifdef unSP
+      if (TREE_STRING_IS_PACKED (t1) && TREE_STRING_IS_PACKED (t2))
+        return (TREE_STRING_PACKED_LENGTH (t1) == TREE_STRING_PACKED_LENGTH (t2)
+                && !bcmp (TREE_STRING_POINTER (t1), TREE_STRING_POINTER (t2),
+                          strlen (TREE_STRING_POINTER (t1))));
+      else
+        return TREE_STRING_LENGTH (t1) == TREE_STRING_LENGTH (t2)
+	  && !bcmp (TREE_STRING_POINTER (t1), TREE_STRING_POINTER (t2),
+		    TREE_STRING_LENGTH (t1));
+#else
       return TREE_STRING_LENGTH (t1) == TREE_STRING_LENGTH (t2)
 	&& !bcmp (TREE_STRING_POINTER (t1), TREE_STRING_POINTER (t2),
 		  TREE_STRING_LENGTH (t1));
+#endif
 
     case CONSTRUCTOR:
       if (CONSTRUCTOR_ELTS (t1) == CONSTRUCTOR_ELTS (t2))
