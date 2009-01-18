@@ -182,7 +182,11 @@
       sprintf (name, \"*%s_entry\", XSTR (operands[1], 0));
       xops[0] = operands[0];
       xops[1] = gen_rtx_SYMBOL_REF (QImode, name);
-      output_asm_insn (\"%0=%1\\t// QImode move, function pointer\", xops);
+
+      if (TARGET_PAGE0_MASKROM)
+        output_asm_insn (\"%0=OFFSET(%1)\\t// QImode move, function pointer\", xops);
+      else
+        output_asm_insn (\"%0=%1\\t// QImode move, function pointer\", xops);
     }
   else if (GET_CODE (operands[1]) == CONST
            && GET_CODE (XEXP (operands[1], 0)) == PLUS
@@ -196,7 +200,11 @@
       sprintf (name, \"*%s_entry\", XSTR (XEXP (XEXP (operands[1], 0), 0), 0));
       xops[0] = operands[0];
       xops[1] = gen_rtx (CONST, QImode, gen_rtx (PLUS, QImode, gen_rtx_SYMBOL_REF (QImode, name), XEXP (XEXP (operands[1], 0), 1)));
-      output_asm_insn (\"%0=%1\\t// QImode move, function pointer\", xops);
+
+      if (TARGET_PAGE0_MASKROM)
+        output_asm_insn (\"%0=OFFSET(%1)\\t// QImode move, function pointer\", xops);
+      else
+        output_asm_insn (\"%0=%1\\t// QImode move, function pointer\", xops);
     }
   else
     {
@@ -1461,7 +1469,11 @@
       xops[0] = operands[0];
       xops[1] = operands[1];
       xops[2] = gen_rtx_SYMBOL_REF (QImode, name);
-      output_asm_insn (\"%0=%1+%2\", xops);
+
+      if (TARGET_PAGE0_MASKROM)
+        output_asm_insn (\"%0=%1+OFFSET(%2)\", xops);
+      else
+        output_asm_insn (\"%0=%1+%2\", xops);
       return \"\";
     }
   else if (GET_CODE (operands[2]) == CONST
@@ -1477,7 +1489,11 @@
       xops[0] = operands[0];
       xops[1] = operands[1];
       xops[2] = gen_rtx (CONST, QImode, gen_rtx (PLUS, QImode, gen_rtx_SYMBOL_REF (QImode, name), XEXP (XEXP (operands[2], 0), 1)));
-      output_asm_insn (\"%0=%1+%2\", xops);
+
+      if (TARGET_PAGE0_MASKROM)
+        output_asm_insn (\"%0=%1+OFFSET(%2)\", xops);
+      else
+        output_asm_insn (\"%0=%1+%2\", xops);
       return \"\";
     }
   /* Rd = Rs ALU_OP #IM16 */
@@ -2003,7 +2019,11 @@
       xops[0] = operands[0];
       xops[1] = operands[1];
       xops[2] = gen_rtx_SYMBOL_REF (QImode, name);
-      output_asm_insn (\"%0=%1-%2\", xops);
+
+      if (TARGET_PAGE0_MASKROM)
+        output_asm_insn (\"%0=%1-OFFSET(%2)\", xops);
+      else
+        output_asm_insn (\"%0=%1-%2\", xops);
       return \"\";
     }
   else if (GET_CODE (operands[2]) == CONST
@@ -2019,7 +2039,11 @@
       xops[0] = operands[0];
       xops[1] = operands[1];
       xops[2] = gen_rtx (CONST, QImode, gen_rtx (PLUS, QImode, gen_rtx_SYMBOL_REF (QImode, name), XEXP (XEXP (operands[2], 0), 1)));
-      output_asm_insn (\"%0=%1-%2\", xops);
+
+      if (TARGET_PAGE0_MASKROM)
+        output_asm_insn (\"%0=%1-OFFSET(%2)\", xops);
+      else
+        output_asm_insn (\"%0=%1-%2\", xops);
       return \"\";
     }
 
@@ -2843,7 +2867,11 @@
       xops[0] = operands[0];
       xops[1] = operands[1];
       xops[2] = gen_rtx_SYMBOL_REF (QImode, name);
-      output_asm_insn (\"%0=%1&%2\", xops);
+
+      if (TARGET_PAGE0_MASKROM)
+        output_asm_insn (\"%0 = %1 & OFFSET(%2)\", xops);
+      else
+        output_asm_insn (\"%0=%1&%2\", xops);
       return \"\";
     }
   else if (GET_CODE (operands[2]) == CONST
@@ -2859,7 +2887,11 @@
       xops[0] = operands[0];
       xops[1] = operands[1];
       xops[2] = gen_rtx (CONST, QImode, gen_rtx (PLUS, QImode, gen_rtx_SYMBOL_REF (QImode, name), XEXP (XEXP (operands[2], 0), 1)));
-      output_asm_insn (\"%0=%1&%2\", xops);
+
+      if (TARGET_PAGE0_MASKROM)
+        output_asm_insn (\"%0 = %1 & OFFSET(%2)\", xops);
+      else
+        output_asm_insn (\"%0=%1&%2\", xops);
       return \"\";
     }
 
@@ -3350,7 +3382,11 @@
       xops[0] = operands[0];
       xops[1] = operands[1];
       xops[2] = gen_rtx_SYMBOL_REF (QImode, name);
-      output_asm_insn (\"%0=%1|%2\", xops);
+
+      if (TARGET_PAGE0_MASKROM)
+        output_asm_insn (\"%0 = %1 | OFFSET(%2)\", xops);
+      else
+        output_asm_insn (\"%0=%1|%2\", xops);
       return \"\";
     }
   else if (GET_CODE (operands[2]) == CONST
@@ -3366,7 +3402,11 @@
       xops[0] = operands[0];
       xops[1] = operands[1];
       xops[2] = gen_rtx (CONST, QImode, gen_rtx (PLUS, QImode, gen_rtx_SYMBOL_REF (QImode, name), XEXP (XEXP (operands[2], 0), 1)));
-      output_asm_insn (\"%0=%1|%2\", xops);
+
+      if (TARGET_PAGE0_MASKROM)
+        output_asm_insn (\"%0 = %1 | OFFSET(%2)\", xops);
+      else
+        output_asm_insn (\"%0=%1|%2\", xops);
       return \"\";
     }
 
@@ -3857,7 +3897,11 @@
       xops[0] = operands[0];
       xops[1] = operands[1];
       xops[2] = gen_rtx_SYMBOL_REF (QImode, name);
-      output_asm_insn (\"%0=%1^%2\", xops);
+
+      if (TARGET_PAGE0_MASKROM)
+        output_asm_insn (\"%0 = %1 ^ OFFSET(%2)\", xops);
+      else
+        output_asm_insn (\"%0=%1^%2\", xops);
       return \"\";
     }
   else if (GET_CODE (operands[2]) == CONST
@@ -3873,7 +3917,11 @@
       xops[0] = operands[0];
       xops[1] = operands[1];
       xops[2] = gen_rtx (CONST, QImode, gen_rtx (PLUS, QImode, gen_rtx_SYMBOL_REF (QImode, name), XEXP (XEXP (operands[2], 0), 1)));
-      output_asm_insn (\"%0=%1^%2\", xops);
+
+      if (TARGET_PAGE0_MASKROM)
+        output_asm_insn (\"%0 = %1 ^ OFFSET(%2)\", xops);
+      else
+        output_asm_insn (\"%0=%1^%2\", xops);
       return \"\";
     }
 
@@ -4223,7 +4271,8 @@
   ""
   "
 {
-  if (GET_CODE(operands[2]) == CONST)
+  if (GET_CODE(operands[2]) == CONST
+      || GET_CODE(operands[2]) == CONST_INT)
     {
       emit_insn (gen_ashlqi3_rri (operands[0], operands[1], operands[2]));
       DONE;
@@ -4353,7 +4402,8 @@
   ""
   "
 {
-  if (GET_CODE(operands[2]) == CONST)
+  if (GET_CODE(operands[2]) == CONST
+      || GET_CODE(operands[2]) == CONST_INT)
     {
       emit_insn (gen_ashrqi3_rri (operands[0], operands[1], operands[2]));
       DONE;
@@ -4428,6 +4478,7 @@
   if (count == 0)
     return \"\";
 
+  output_asm_insn (\"// ashrqi3_rr1 %0 %1 %2\", operands);
   if (j)
     output_asm_insn (\"%0=%1 asr %2\", xops);
   else
@@ -4453,7 +4504,8 @@
   ""
   "
 {
-  if (GET_CODE(operands[2]) == CONST)
+  if (GET_CODE(operands[2]) == CONST
+      || GET_CODE(operands[2]) == CONST_INT)
     {
       emit_insn (gen_lshrqi3_rri (operands[0], operands[1], operands[2]));
       DONE;
@@ -4573,71 +4625,71 @@
 ;===============================================================================
 ;===============================================================================
 
-(define_insn "rotlqi3"
-  [(set (match_operand:QI 0 "register_operand" "=r")
-        (rotate:QI (match_operand:QI 1 "register_operand" "r")
-                   (match_operand:QI 2 "immediate_operand" "i")))]
-  ""
-  "*
-{
-  int count, i, j;
-  rtx xops[4];
-
-  count = INTVAL (operands[2]) % BITS_PER_WORD;
-  if (count < 0)
-    count += BITS_PER_WORD;
-  i = count / 4;
-  j = count % 4;
-
-  xops[0] = operands[0];
-  xops[1] = operands[1];
-  xops[2] = GEN_INT (j);
-  xops[3] = GEN_INT (4);
-
-  if (count == 0)
-    return \"\";
-  if (j > 0)
-    output_asm_insn (\"%0=%1 rol %2\", xops);
-  else
-    ++i;
-  while (i--)
-    output_asm_insn (\"%0=%1 rol %3\", xops);
-  return \"\";
-}")
+; (define_insn "rotlqi3"
+;   [(set (match_operand:QI 0 "register_operand" "=r")
+;         (rotate:QI (match_operand:QI 1 "register_operand" "r")
+;                    (match_operand:QI 2 "immediate_operand" "i")))]
+;   ""
+;   "*
+; {
+;   int count, i, j;
+;   rtx xops[4];
+; 
+;   count = INTVAL (operands[2]) % BITS_PER_WORD;
+;   if (count < 0)
+;     count += BITS_PER_WORD;
+;   i = count / 4;
+;   j = count % 4;
+; 
+;   xops[0] = operands[0];
+;   xops[1] = operands[1];
+;   xops[2] = GEN_INT (j);
+;   xops[3] = GEN_INT (4);
+; 
+;   if (count == 0)
+;     return \"\";
+;   if (j > 0)
+;     output_asm_insn (\"%0=%1 rol %2\", xops);
+;   else
+;     ++i;
+;   while (i--)
+;     output_asm_insn (\"%0=%1 rol %3\", xops);
+;   return \"\";
+; }")
 
 ;===============================================================================
 
-(define_insn "rotrqi3"
-  [(set (match_operand:QI 0 "register_operand" "=r")
-        (rotatert:QI (match_operand:QI 1 "register_operand" "r")
-                     (match_operand:QI 2 "immediate_operand" "i")))]
-  ""
-  "*
-{
-  int count, i, j;
-  rtx xops[4];
-
-  count = INTVAL (operands[2]) % BITS_PER_WORD;
-  if (count < 0)
-    count += BITS_PER_WORD;
-  i = count / 4;
-  j = count % 4;
-
-  xops[0] = operands[0];
-  xops[1] = operands[1];
-  xops[2] = GEN_INT (j);
-  xops[3] = GEN_INT (4);
-
-  if (count == 0)
-    return \"\";
-  if (j > 0)
-    output_asm_insn (\"%0=%1 ror %2\", xops);
-  else
-    ++i;
-  while (i--)
-    output_asm_insn(\"%0=%1 ror %3\", xops);
-  return \"\";
-}")
+; (define_insn "rotrqi3"
+;   [(set (match_operand:QI 0 "register_operand" "=r")
+;         (rotatert:QI (match_operand:QI 1 "register_operand" "r")
+;                      (match_operand:QI 2 "immediate_operand" "i")))]
+;   ""
+;   "*
+; {
+;   int count, i, j;
+;   rtx xops[4];
+; 
+;   count = INTVAL (operands[2]) % BITS_PER_WORD;
+;   if (count < 0)
+;     count += BITS_PER_WORD;
+;   i = count / 4;
+;   j = count % 4;
+; 
+;   xops[0] = operands[0];
+;   xops[1] = operands[1];
+;   xops[2] = GEN_INT (j);
+;   xops[3] = GEN_INT (4);
+; 
+;   if (count == 0)
+;     return \"\";
+;   if (j > 0)
+;     output_asm_insn (\"%0=%1 ror %2\", xops);
+;   else
+;     ++i;
+;   while (i--)
+;     output_asm_insn(\"%0=%1 ror %3\", xops);
+;   return \"\";
+; }")
 
 ;===============================================================================
 
@@ -4930,7 +4982,11 @@
       sprintf (name, \"*%s_entry\", XSTR (operands[1], 0));
       xops[0] = operands[0];
       xops[1] = gen_rtx_SYMBOL_REF (QImode, name);
-      output_asm_insn (\"CMP %0,%1\\t// QImode compare\", xops);
+
+      if (TARGET_PAGE0_MASKROM)
+        output_asm_insn (\"CMP %0, OFFSET(%1)\\t// QImode compare\", xops);
+      else
+        output_asm_insn (\"CMP %0,%1\\t// QImode compare\", xops);
       return \"\";
     }
   else if (GET_CODE (operands[1]) == CONST
@@ -4945,7 +5001,11 @@
       sprintf (name, \"*%s_entry\", XSTR (XEXP (XEXP (operands[2], 0), 0), 0));
       xops[0] = operands[0];
       xops[1] = gen_rtx (CONST, QImode, gen_rtx (PLUS, QImode, gen_rtx_SYMBOL_REF (QImode, name), XEXP (XEXP (operands[1], 0), 1)));
-      output_asm_insn (\"CMP %0,%1\\t// QImode compare\", xops);
+
+      if (TARGET_PAGE0_MASKROM)
+        output_asm_insn (\"CMP %0, OFFSET(%1)\\t// QImode compare\", xops);
+      else
+        output_asm_insn (\"CMP %0,%1\\t// QImode compare\", xops);
       return \"\";
     }
 
@@ -5280,6 +5340,38 @@
 
   return \"%0=%1\\t// trunchiqi2\" ;
 }")
+
+;===============================================================================
+
+(define_expand "truncsiqi2"
+  [(set (match_operand:QI 0 "register_operand" "=r")
+        (truncate:QI (match_operand:SI 1 "register_operand" "r" )))]
+  ""
+  "
+{
+  DONE;
+}")
+
+;(define_insn "truncsiqi2"
+;  [(set (match_operand:QI 0 "register_operand" "=r")
+;        (truncate:QI (match_operand:SI 1 "register_operand" "r" )))]
+;  ""
+;  "*
+;{
+;  if (TARGET_WARN_SEC_VAR)
+;    {
+;      char * var_name;
+;      char * sec_name;
+;      extern char * check_sec_var(rtx, char **, char **);
+;
+;      if (check_sec_var (operands[0], &var_name, &sec_name))
+;        warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
+;      if (check_sec_var (operands[1], &var_name, &sec_name))
+;        warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
+;    }
+;
+;  return \"//%0=%1\\t// truncsiqi2\" ;
+;}")
 
 ;===============================================================================
 
@@ -5784,25 +5876,38 @@
   xops[2] = gen_rtx_LABEL_REF (QImode, gen_label_rtx ());
 
   output_asm_insn (\"//call function by pointer without return value\", xops);
-  output_asm_insn (\"%0-=1\", xops);
-  /*
-  output_asm_insn (\"%1=PC+4\", xops);
-  */
-  output_asm_insn (\"%1=%2\", xops);
-  output_asm_insn (\"push %1 to [SP]\", xops);
-  output_asm_insn (\"push SR to [SP]\", xops);
-  output_asm_insn (\"pop SR, PC from [%0]\", xops);
+  if (TARGET_PAGE0_MASKROM)
+    {
+      output_asm_insn (\"%1 = %2\", xops);
+      output_asm_insn (\"PUSH %1 to [SP]\", xops);
+      output_asm_insn (\"PUSH SR to [SP]\", xops);
+      if (TARGET_ISA_1_0 || TARGET_ISA_1_1)
+        {
+          output_asm_insn (\"%1 = __sn_func_ptr_sec\", xops);
+          output_asm_insn (\"SR = SR & 0x3F\", xops);
+          output_asm_insn (\"%1 = %1 LSL 4\", xops);
+          output_asm_insn (\"%1 = %1 LSL 4\", xops);
+          output_asm_insn (\"SR = SR | %1 LSL 2\", xops);
+        }
+      else
+        {
+          output_asm_insn (\"DS = __sn_func_ptr_sec\", xops);
+        }
+      output_asm_insn (\"%1 = D:[%0++]\", xops);
+      output_asm_insn (\"%0 = D:[%0]\", xops);
+      output_asm_insn (\"PUSH %0 to [SP]\", xops);
+      output_asm_insn (\"PUSH %1 to [SP]\", xops);
+      output_asm_insn (\"POP SR, PC from [SP]\", xops);
+    }
+  else
+    {
+      output_asm_insn (\"%0-=1\", xops);
+      output_asm_insn (\"%1=%2\", xops);
+      output_asm_insn (\"push %1 to [SP]\", xops);
+      output_asm_insn (\"push SR to [SP]\", xops);
+      output_asm_insn (\"pop SR, PC from [%0]\", xops);
+    }
   output_asm_insn (\"//end of expand\\n%2:\", xops);
-
-  /* Original version which all pointer is NEAR */
-/*
-  output_asm_insn (\"//call function by pointer without return value\", xops);
-  output_asm_insn (\"%1=PC+4\", xops);
-  output_asm_insn (\"push %1 to [SP]\", xops);
-  output_asm_insn (\"push SR to [SP]\", xops);
-  output_asm_insn (\"PC=%0\", xops);
-  output_asm_insn (\"//end of expand\", xops);
-*/
 
   return \"\";
 }")
@@ -5837,23 +5942,39 @@
   xops[2] = gen_rtx_LABEL_REF (QImode, gen_label_rtx ());
 
   output_asm_insn (\"//call function by pointer with return value\", xops);
-  output_asm_insn (\"%0-=1\", xops);
-  /*
-  output_asm_insn (\"%1=pc+4\", xops);
-  */
-  output_asm_insn (\"%1=%2\", xops);
-  output_asm_insn (\"push %1 to [SP]\", xops);
-  output_asm_insn (\"push SR to [SP]\", xops);
-  output_asm_insn (\"pop SR, PC from [%0]\\n%2:\", xops);
+  if (TARGET_PAGE0_MASKROM)
+    {
+      output_asm_insn (\"%1 = %2\", xops);
+      output_asm_insn (\"PUSH %1 to [SP]\", xops);
+      output_asm_insn (\"PUSH SR to [SP]\", xops);
+      if (TARGET_ISA_1_0 || TARGET_ISA_1_1)
+        {
+          output_asm_insn (\"%1 = __sn_func_ptr_sec\", xops);
+          output_asm_insn (\"SR = SR & 0x3F\", xops);
+          output_asm_insn (\"%1 = %1 LSL 4\", xops);
+          output_asm_insn (\"%1 = %1 LSL 4\", xops);
+          output_asm_insn (\"SR = SR | %1 LSL 2\", xops);
+        }
+      else
+        {
+          output_asm_insn (\"DS = __sn_func_ptr_sec\", xops);
+        }
+      output_asm_insn (\"%1 = D:[%0++]\", xops);
+      output_asm_insn (\"%0 = D:[%0]\", xops);
+      output_asm_insn (\"PUSH %0 to [SP]\", xops);
+      output_asm_insn (\"PUSH %1 to [SP]\", xops);
+      output_asm_insn (\"POP SR, PC from [SP]\", xops);
+    }
+  else
+    {
+      output_asm_insn (\"%0-=1\", xops);
+      output_asm_insn (\"%1=%2\", xops);
+      output_asm_insn (\"push %1 to [SP]\", xops);
+      output_asm_insn (\"push SR to [SP]\", xops);
+      output_asm_insn (\"pop SR, PC from [%0]\", xops);
+    }
+  output_asm_insn (\"//end of expand\\n%2:\", xops);
 
-  /* Original version which all pointer is NEAR */
-/*
-  output_asm_insn (\"//call function by pointer with return value\", xops);
-  output_asm_insn (\"%1=pc+3\", xops);
-  output_asm_insn (\"push %1 to [sp]\", xops);
-  output_asm_insn (\"push SR to [sp]\", xops);
-  output_asm_insn (\"pc=%0\", xops);
-*/
   return \"\";
 }")
 
@@ -5909,14 +6030,87 @@
 
 ;===============================================================================
 
+(define_expand "casesi"
+  [(match_operand:SI 0 "register_operand" "") ; index to jump on
+   (match_operand:QI 1 "const_int_operand" "")  ; lower bound
+   (match_operand:QI 2 "const_int_operand" "")  ; total range
+   (match_operand:QI 3 "" "")                   ; table label
+   (match_operand:QI 4 "" "")]                  ; Out of range label
+  ""
+  "
+{
+  rtx reg = gen_reg_rtx (QImode);
+  rtx mem;
+
+  /* Change the mode of index to QImode.  */
+  emit_insn (gen_truncsiqi2 (reg, operands[0]));
+  /* Subtract the lower bound from the index.  */
+  emit_insn (gen_subqi3 (reg, reg, operands[1]));
+  /* Compare the result against the number of table entries.  */
+  emit_insn (gen_cmpqi (reg, operands[2]));
+  /* Branch to the default label if out of range of the table.  */
+  emit_jump_insn (gen_bgtu (operands[4]));
+
+  if (!TARGET_PAGE0_MASKROM)
+    {
+      rtx tableaddress = gen_reg_rtx (QImode);
+
+      /* Load the table address into a pseudo.  */
+      emit_insn (gen_movqi (tableaddress,
+                            gen_rtx (LABEL_REF, VOIDmode, operands[3])));
+      /* Add the table address to the index.  */
+      emit_insn (gen_addqi3 (reg, reg, tableaddress));
+      /* Load the table entry.  */
+      mem = gen_rtx (MEM, CASE_VECTOR_MODE, reg);
+      RTX_UNCHANGING_P (mem);
+      emit_insn (gen_movqi (reg, mem));
+      /* Branch to the switch label.  */
+      emit_jump_insn (gen_tablejump (reg, operands[3]));
+    }
+  else
+    {
+      emit_jump_insn (gen_tablejump_page0_maskrom (reg, operands[3]));
+#if 0
+      emit_insn (gen_rtx_USE (VOIDmode, gen_rtx_LABEL_REF (VOIDmode, operands[3])));
+#endif
+    }
+
+  DONE;
+}")
+
+;===============================================================================
+
 (define_insn "tablejump"
   [(set (pc) (match_operand:QI 0 "nonimmediate_operand" "rm"))
    (use (label_ref (match_operand 1 "" "")))]
-  ""
+  "!TARGET_PAGE0_MASKROM"
   "*
 {
-  return \"pc=%0\\t// tablejump\";
+  output_asm_insn (\"pc=%0\\t// tablejump\", operands);
+  return \"\";
 }")
+
+(define_insn "tablejump_page0_maskrom"
+  [(set (pc) (match_operand:QI 0 "register_operand" "r"))
+   (use (label_ref (match_operand 1 "" "")))]
+  "TARGET_PAGE0_MASKROM"
+  "*
+{
+  output_asm_insn (\"// tablejump\", operands);
+  if (TARGET_ISA_1_0 || TARGET_ISA_1_1)
+    {
+      output_asm_insn (\"SR = SR & 0x3F\", operands);
+      output_asm_insn (\"SR = SR | HIGH6(%1)\", operands);
+    }
+  else
+    {
+      output_asm_insn (\"DS = SEG(%1)\", operands);
+    }
+  output_asm_insn (\"%0 = %0 + OFFSET(%1)\", operands);
+  output_asm_insn (\"PC = D:[%0]\", operands);
+  return \"\";
+}")
+
 
 ;===============================================================================
 

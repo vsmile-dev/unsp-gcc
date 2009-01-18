@@ -2372,7 +2372,15 @@ final_scan_insn (insn, file, optimize, prescan, nopeepholes)
 #else
 	      if (! JUMP_TABLES_IN_TEXT_SECTION)
 		{
+#ifdef unSP
+                  extern void nb_data_section (void);
+                  if (TARGET_PAGE0_MASKROM)
+                    nb_data_section ();
+                  else
+                    readonly_data_section ();
+#else
 		  readonly_data_section ();
+#endif
 #ifdef READONLY_DATA_SECTION
 		  ASM_OUTPUT_ALIGN (file,
 				    exact_log2 (BIGGEST_ALIGNMENT

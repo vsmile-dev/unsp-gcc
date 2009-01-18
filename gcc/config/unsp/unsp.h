@@ -21,7 +21,7 @@ Boston, MA 02111-1307, USA.  */
 
 #define unSP 1
 #define HAVE_cc0
-#define UNSP_VERSION_STRING "1.0.18"
+#define UNSP_VERSION_STRING "1.0.19"
 
 extern int rtx_equal_function_value_matters;
 
@@ -40,6 +40,10 @@ extern enum machine_mode unsp_compare_mode;
 extern struct rtx_def *unsp_compare_op0, *unsp_compare_op1;
 extern void gen_compare_branch ();
 
+/* u'nSP EXTRA_SECTIONS */
+extern void const_section (void);
+extern void nb_data_section (void);
+
 extern char unsp_tmpstr[];
 
 /*
@@ -47,15 +51,13 @@ extern char unsp_tmpstr[];
 */
 
 #ifndef CC1_SPEC
-#define CC1_SPEC "                    \
-%{mbig5:-fkeep-inline-functions}      \
-%{mnobig5:-fkeep-inline-functions}"
+#define CC1_SPEC "-fkeep-inline-functions"
 #endif
 
 #ifndef CPP_SPEC
-#define CPP_SPEC "            \
-%{!mnobig5:-mbig5}            \
-%{!mpc=*:-D __PREFIX_CHAR__=64} \
+#define CPP_SPEC "                    \
+%{!mnobig5:-mbig5}                    \
+%{!mpc=*:-D __PREFIX_CHAR__=64}       \
 %{mpc=*:-D __PREFIX_CHAR__=%*unSP}"
 #endif
 
@@ -67,7 +69,7 @@ extern char unsp_tmpstr[];
   Run-time target specification
 */
 
-#define CPP_PREDEFINES "-DunSP"
+#define CPP_PREDEFINES "-DunSP -DSUNPLUS -D__POINTER_16__ -D__CHAR_16__ -D__INT_16__ -D__LONG_LONG_32__ -D__DOUBLE_32__"
 
 /* FAR usage:
    ¦pªG¼g¦bÅÜ¼Æ«e­±
@@ -83,12 +85,23 @@ extern int target_flags;
 #define MASK_WARN_SEC_VAR   0x0001
 #define MASK_BIG5_ESC_SEQ   0x0002
 #define MASK_IRAM           0x0004
+#define MASK_PAGE0_MASKROM  0x0004
 #define MASK_DEBUG_UNSP_GCC 0x8000
 
 #define TARGET_WARN_SEC_VAR   (target_flags & MASK_WARN_SEC_VAR)
 #define TARGET_BIG5_ESC_SEQ   (target_flags & MASK_BIG5_ESC_SEQ)
 #define TARGET_IRAM           (target_flags & MASK_IRAM)
+/* If Page0 is MaskROM, jump tables and values of function pointers
+   can not be put in Page0. Moreover, extra codes needed for accessing
+   jump tables and function pointers.  */
+#define TARGET_PAGE0_MASKROM  (target_flags & MASK_PAGE0_MASKROM)
 #define TARGET_DEBUG_UNSP_GCC (target_flags & MASK_DEBUG_UNSP_GCC)
+
+#define TARGET_ISA_1_0        (unsp_isa == 0x0100)
+#define TARGET_ISA_1_1        (unsp_isa == 0x0101)
+#define TARGET_ISA_1_2        (unsp_isa == 0x0102)
+#define TARGET_ISA_1_3        (unsp_isa == 0x0103)
+#define TARGET_ISA_2_0        (unsp_isa == 0x0200)
 
 #define TARGET_SWITCHES                                                 \
 {                                                                       \
@@ -102,6 +115,8 @@ extern int target_flags;
      "Put un-initialized global variables in .IRAM"},                   \
   {"global-var-ram", -MASK_IRAM,                                        \
      "Put un-initialized global variables in .RAM"},                    \
+  {"page0-maskrom", MASK_PAGE0_MASKROM,                                 \
+     "Page0 is MaskROM. Don't generate tables in Page0"},               \
   {"debug", MASK_DEBUG_UNSP_GCC,                                        \
      "Output extra GCC debug information"},                             \
   SUBTARGET_SWITCHES                                                    \
@@ -109,18 +124,22 @@ extern int target_flags;
      NULL}                                                              \
 }
 
-extern const char *unsp_packed_string_prefix_string;
-extern char unsp_packed_string_prefix;
+extern const char   *unsp_packed_string_prefix_string;
+extern char         unsp_packed_string_prefix;
+extern unsigned int unsp_isa;
+extern const char   *unsp_isa_string;
 
 #ifndef TARGET_DEFAULT
 #define TARGET_DEFAULT MASK_BIG5_ESC_SEQ
 #endif
 
-#define TARGET_OPTIONS                             \
-{                                                  \
-  { "pc=", &unsp_packed_string_prefix_string,      \
-     "Specify the prefix char for packed string"}, \
-  SUBTARGET_OPTIONS                                \
+#define TARGET_OPTIONS                              \
+{                                                   \
+  { "pc=", &unsp_packed_string_prefix_string,       \
+     "Specify the prefix char for packed string"},  \
+  { "ISA=", &unsp_isa_string,                       \
+     "Version of u'nSP ISA to generate codes for"}, \
+  SUBTARGET_OPTIONS                                 \
 }
 
 #define SUBTARGET_SWITCHES
@@ -1367,11 +1386,9 @@ extern int unsp_rtx_cost ();
 /* A list of names for sections other than the standard ones, which
    are 'in_text' and 'in_data' (and .bss if bss_section_asm_op is
    defined).  */
-#define EXTRA_SECTIONS in_const
+#define EXTRA_SECTIONS in_const, in_nb_data
 
 #define EXTRA_SECTION_FUNCTIONS                 \
-extern void const_section ();                   \
-                                                \
 void                                            \
 const_section(void)                             \
 {                                               \
@@ -1379,6 +1396,15 @@ const_section(void)                             \
     {                                           \
       fprintf (asm_out_file, ".text\n");        \
       in_section = in_const;                    \
+    }                                           \
+}                                               \
+void                                            \
+nb_data_section(void)                           \
+{                                               \
+  if (in_section != in_nb_data)                 \
+    {                                           \
+      fprintf (asm_out_file, ".nb_data\n");     \
+      in_section = in_nb_data;                  \
     }                                           \
 }
 

@@ -50,9 +50,31 @@ char unsp_tmpstr[512];
 const char *unsp_packed_string_prefix_string;
 char unsp_packed_string_prefix;
 
+unsigned int unsp_isa = 0x0101;
+const char *unsp_isa_string;
+
 void
 override_options ()
 {
+  if (unsp_isa_string != NULL)
+    {
+      if (strcmp (unsp_isa_string, "1.0") == 0)
+        unsp_isa = 0x0100;
+      else if (strcmp (unsp_isa_string, "1.1") == 0)
+        unsp_isa = 0x0101;
+      else if (strcmp (unsp_isa_string, "1.2") == 0)
+        unsp_isa = 0x0102;
+      else if (strcmp (unsp_isa_string, "1.3") == 0)
+        unsp_isa = 0x0103;
+      else if (strcmp (unsp_isa_string, "2.0") == 0)
+        unsp_isa = 0x0200;
+      else
+        {
+          warning ("Unknown ISA specified, default to ISA=1.1");
+          unsp_isa = 0x0101;
+        }
+    }
+
   if (unsp_packed_string_prefix_string)
     {
       if (strcmp (unsp_packed_string_prefix_string, "NULL") == 0)
@@ -540,7 +562,7 @@ unsp_asm_file_start (file)
       if (i + 1 < save_argc)
         fprintf (file, " ");
     }
-  fprintf (file, "\n");
+  fprintf (file, "\n\t.external __sn_func_ptr_sec\n\n");
 }
 
 /* This is called at the end of assembly.  For each external function
@@ -594,7 +616,11 @@ unsp_asm_file_end (file)
       fprintf (file, "\n// far pointer entry table:\n");
       for (p = used_far_ptr_head; p != NULL; q = p->next, free (p), p = q)
         {
-          fprintf (file, "%s_ptsec: .section .vtbl\n", p->name);
+          if (TARGET_PAGE0_MASKROM)
+            fprintf (file, "%s_ptsec: .section .nb_merge\n", p->name);
+          else
+            fprintf (file, "%s_ptsec: .section .vtbl\n", p->name);
+
           fprintf (file, "%s_entry:\t.dw seg _%s, offset _%s\n\n",
                          p->name, p->name, p->name);
           free (p->name);
