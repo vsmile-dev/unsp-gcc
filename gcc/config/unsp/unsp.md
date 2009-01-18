@@ -4666,7 +4666,7 @@
   ""
   "
 {
-  if (GET_CODE (operands[2]) == REG)
+  if (GET_CODE (operands[1]) == REG)
     FAIL;
 
   if (TARGET_WARN_SEC_VAR)
