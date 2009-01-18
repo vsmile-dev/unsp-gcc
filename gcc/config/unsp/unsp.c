@@ -591,10 +591,11 @@ unsp_asm_file_end (file)
     {
       char name[60];
       
-      fprintf (file, "\n.text\n// far pointer entry table:\n");
+      fprintf (file, "\n// far pointer entry table:\n");
       for (p = used_far_ptr_head; p != NULL; q = p->next, free (p), p = q)
         {
-          fprintf (file, "%s_entry:\t.dw seg _%s, offset _%s\n",
+          fprintf (file, "%s_entry_sec: .section .vtbl\n", p->name);
+          fprintf (file, "%s_entry:\t.dw seg _%s, offset _%s\n\n",
                          p->name, p->name, p->name);
           free (p->name);
         }
