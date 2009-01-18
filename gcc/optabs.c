@@ -1318,6 +1318,10 @@ expand_binop (mode, binoptab, op0, op1, target, unsignedp, methods)
 			    target_piece, unsignedp, next_methods);
 	  if (x == 0)
 	    break;
+#ifdef unSP
+	  else if (target_piece != x)
+	    emit_move_insn (target_piece, x);
+#endif
 
 	  if (i + 1 < nwords)
 	    {
@@ -1360,6 +1364,15 @@ expand_binop (mode, binoptab, op0, op1, target, unsignedp, methods)
 		    break;
 		}
 	    }
+#if 0
+	  else
+	    {
+	      if (x == 0)
+		break;
+	      else if (target_piece != x)
+		emit_move_insn (target_piece, x);
+            }
+#endif
 
 	  carry_in = carry_out;
 	}	

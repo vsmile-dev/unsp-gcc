@@ -93,7 +93,7 @@ static int m16_check_op				PROTO ((rtx, int, int, int));
 static void block_move_loop			PROTO ((rtx, rtx, int, int,
 							rtx, rtx));
 static void block_move_call			PROTO ((rtx, rtx, rtx));
-static FILE *make_temp_file			PROTO ((void));
+static FILE *mips_make_temp_file		PROTO ((void));
 static void save_restore_insns			PROTO ((int, rtx,
 							long, FILE *));
 static void mips16_output_gp_offset		PROTO ((FILE *, rtx));
@@ -3422,7 +3422,7 @@ output_block_move (insn, operands, num_regs, move_type)
 	  bytes -= 4;
 	}
 
-      else if (bytes >= 4 && ! TARGET_MIPS16)
+      else if (bytes >= 4 && TARGET_UNALIGNED_INSN && ! TARGET_MIPS16)
 	{
 	  if (BYTES_BIG_ENDIAN)
 	    {
@@ -5076,7 +5076,7 @@ mips_output_external_libcall (file, name)
 #endif
 
 static FILE *
-make_temp_file ()
+mips_make_temp_file ()
 {
   FILE *stream;
   const char *base = getenv ("TMPDIR");
@@ -5295,7 +5295,7 @@ mips_asm_file_start (stream)
   if (TARGET_FILE_SWITCHING && ! TARGET_MIPS16)
     {
       asm_out_data_file = stream;
-      asm_out_text_file = make_temp_file ();
+      asm_out_text_file = mips_make_temp_file ();
     }
 
   else

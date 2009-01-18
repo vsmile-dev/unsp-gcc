@@ -2605,6 +2605,17 @@ changequote([,])dnl
 		fi
 		tmake_file=mips/t-ecoff
 		;;
+	mipsel-sunplus-elf*)
+		tm_file="mips/elfl.h libgloss.h mips/sunplus.h"
+		tmake_file=mips/t-sunplus
+		gas=yes
+		gnu_ld=yes
+		extra_parts="crtbegin.o crtend.o"
+		;;
+	mips-sunplus-elf*)
+		tm_file="mips/elf.h libgloss.h mips/sunplus.h"
+		tmake_file=mips/t-sunplus
+		;;
 	mipsel-*-elf*)
 		tm_file="mips/elfl.h libgloss.h"
 		tmake_file=mips/t-elf

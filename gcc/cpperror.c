@@ -60,6 +60,9 @@ cpp_print_containing_files (pfile)
       cpp_buf_line_and_col (ip, &line, &col);
       if (ip->fname != NULL)
 	{
+#ifdef unSP
+          cpp_notice ("%s:%ld: includes file\n", ip->nominal_fname, line);
+#else
 	  if (first)
 	    {
 	      first = 0;
@@ -69,6 +72,7 @@ cpp_print_containing_files (pfile)
 	  else
 	    cpp_message (pfile, -1, ",\n                 from %s:%ld",
 			 ip->nominal_fname, line);
+#endif
 	}
     }
   if (! first)

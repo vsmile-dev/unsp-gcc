@@ -2063,7 +2063,11 @@ error VPROTO ((char * msgid, ...))
   msgid = va_arg (args, char *);
 #endif
 
+#ifdef unSP
+  fprintf (stderr, "ERROR: ");
+#else
   fprintf (stderr, "error: ");
+#endif
   vfprintf (stderr, _(msgid), args);
   fprintf (stderr, "\n");
   va_end (args);
@@ -2083,6 +2087,9 @@ pedwarn VPROTO ((char * msgid, ...))
   msgid = va_arg (args, char *);
 #endif
 
+#ifdef unSP
+  fprintf (stderr, "WARNING: ");
+#endif
   fprintf (stderr, "pedwarn: ");
   vfprintf (stderr, _(msgid), args);
   fprintf (stderr, "\n");

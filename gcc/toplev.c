@@ -1591,12 +1591,17 @@ report_error_function (file)
   if (input_file_stack && input_file_stack->next != 0
       && input_file_stack_tick != last_error_tick)
     {
+#ifdef unSP
+      for (p = input_file_stack->next; p; p = p->next)
+	notice ("%s:%d: includes file\n", p->name, p->line);
+#else
       for (p = input_file_stack->next; p; p = p->next)
 	notice ((p == input_file_stack->next
 		 ?    "In file included from %s:%d"
 		 : ",\n                 from %s:%d"),
 		p->name, p->line);
       fprintf (stderr, ":\n");
+#endif
       last_error_tick = input_file_stack_tick;
     }
 
@@ -1805,9 +1810,19 @@ v_error_with_file_and_line (file, line, msgid, ap)
      const char *msgid;
      va_list ap;
 {
+#ifdef unSP
+  char *msg;
+
+  msg = alloca (strlen (msgid) + strlen ("ERROR: ") + 1);
+  sprintf (msg, "ERROR: %s", msgid);
+#endif
   count_error (0);
   report_error_function (file);
+#ifdef unSP
+  v_message_with_file_and_line (file, line, 0, msg, ap);
+#else
   v_message_with_file_and_line (file, line, 0, msgid, ap);
+#endif
 }
 
 void
@@ -1843,9 +1858,20 @@ v_error_with_decl (decl, msgid, ap)
      const char *msgid;
      va_list ap;
 {
+#ifdef unSP
+  char *msg;
+
+  msg = alloca (strlen (msgid) + strlen ("ERROR: ") + 1);
+  sprintf (msg, "ERROR: %s", msgid);
+#endif
+
   count_error (0);
   report_error_function (DECL_SOURCE_FILE (decl));
+#ifdef unSP
+  v_message_with_decl (decl, 0, msg, ap);
+#else
   v_message_with_decl (decl, 0, msgid, ap);
+#endif
 }
 
 void
@@ -1880,11 +1906,21 @@ v_error_for_asm (insn, msgid, ap)
 {
   char *file;
   int line;
+#ifdef unSP
+  char *msg;
+
+  msg = alloca (strlen (msgid) + strlen ("WARNING: ") + 1);
+  sprintf (msg, "WARNING: %s", msgid);
+#endif
 
   count_error (0);
   file_and_line_for_asm (insn, &file, &line);
   report_error_function (file);
+#ifdef unSP
+  v_message_with_file_and_line (file, line, 0, msg, ap);
+#else
   v_message_with_file_and_line (file, line, 0, msgid, ap);
+#endif
 }
 
 void
@@ -1975,8 +2011,18 @@ v_warning_with_file_and_line (file, line, msgid, ap)
 {
   if (count_error (1))
     {
+#ifdef unSP
+      char *msg;
+
+      msg = alloca (strlen (msgid) + strlen ("WARNING: ") + 1);
+      sprintf (msg, "WARNING: %s", msgid);
+#endif
       report_error_function (file);
+#ifdef unSP
+      v_message_with_file_and_line (file, line, 1, msg, ap);
+#else
       v_message_with_file_and_line (file, line, 1, msgid, ap);
+#endif
     }
 }
 
@@ -2015,8 +2061,19 @@ v_warning_with_decl (decl, msgid, ap)
 {
   if (count_error (1))
     {
+#ifdef unSP
+      char *msg;
+
+      msg = alloca (strlen (msgid) + strlen ("ERROR: ") + 1);
+      sprintf (msg, "WARNING: %s", msgid);
+#endif
+
       report_error_function (DECL_SOURCE_FILE (decl));
+#ifdef unSP
+      v_message_with_decl (decl, 1, msg, ap);
+#else
       v_message_with_decl (decl, 1, msgid, ap);
+#endif
     }
 }
 

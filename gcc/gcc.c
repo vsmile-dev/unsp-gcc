@@ -595,7 +595,11 @@ static struct compiler default_compilers[] =
      linking is not done".  */
   {".m", {"#Objective-C"}},
   {".cc", {"#C++"}}, {".cxx", {"#C++"}}, {".cpp", {"#C++"}},
+#ifndef HAVE_DOS_BASED_FILE_SYSTEM
   {".c++", {"#C++"}}, {".C", {"#C++"}},
+#else
+  {".c++", {"#C++"}},
+#endif
   {".ads", {"#Ada"}}, {".adb", {"#Ada"}}, {".ada", {"#Ada"}},
   {".f", {"#Fortran"}}, {".for", {"#Fortran"}}, {".F", {"#Fortran"}},
   {".fpp", {"#Fortran"}},

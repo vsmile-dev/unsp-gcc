@@ -417,6 +417,9 @@ notice VPROTO((char *msgid, ...))
   msgid = va_arg (ap, char *);
 #endif
 
+#ifdef unSP
+  fprintf (stderr, "WARNING: ");
+#endif
   vfprintf (stderr, _(msgid), ap);
   va_end (ap);
 }
@@ -438,6 +441,9 @@ fatal_perror VPROTO((const char * msgid, ...))
   msgid = va_arg (ap, const char *);
 #endif
 
+#ifdef unSP
+  fprintf (stderr, "ERROR: ");
+#endif
   fprintf (stderr, "collect2: ");
   vfprintf (stderr, _(msgid), ap);
   fprintf (stderr, ": %s\n", my_strerror (e));
@@ -461,7 +467,10 @@ fatal VPROTO((const char * msgid, ...))
 #ifndef ANSI_PROTOTYPES
   msgid = va_arg (ap, const char *);
 #endif
-  
+
+#ifdef unSP
+  fprintf (stderr, "ERROR: ");
+#endif 
   fprintf (stderr, "collect2: ");
   vfprintf (stderr, _(msgid), ap);
   fprintf (stderr, "\n");
@@ -486,6 +495,9 @@ error VPROTO((const char * msgid, ...))
   msgid = va_arg (ap, const char *);
 #endif
 
+#ifdef unSP
+  fprintf (stderr, "ERROR: ");
+#endif
   fprintf (stderr, "collect2: ");
   vfprintf (stderr, _(msgid), ap);
   fprintf (stderr, "\n");

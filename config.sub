@@ -64,6 +64,16 @@ case $1 in
 	;;
 esac
 
+# Here we handle any "marketing" names - translating them to
+#  standard triplets
+case $1 in
+        mips-tx39-elf)
+                set mipstx39-unknown-elf
+                ;;
+        *)
+                ;;
+esac
+
 # Separate what the user gave into CPU-COMPANY and OS or KERNEL-OS (if any).
 # Here we must recognize all the valid KERNEL-OS combinations.
 maybe_os=`echo $1 | sed 's/^\(.*\)-\([^-]*-[^-]*\)$/\2/'`
@@ -171,6 +181,7 @@ case $basic_machine in
 		| 1750a | dsp16xx | pdp11 \
 		| mips64 | mipsel | mips64el | mips64orion | mips64orionel \
 		| mipstx39 | mipstx39el \
+		| unsp \
 		| sparc | sparclet | sparclite | sparc64 | sparcv9 | v850 | c4x)
 		basic_machine=$basic_machine-unknown
 		;;

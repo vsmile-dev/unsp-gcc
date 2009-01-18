@@ -2951,9 +2951,19 @@ v_cpp_error (pfile, msgid, ap)
   const char *msgid;
   va_list ap;
 {
+#ifdef unSP
+  char *msg;
+
+  msg = alloca (strlen (msgid) + strlen ("ERROR: ") + 1);
+  sprintf (msg, "ERROR: %s", msgid);
+#endif
   cpp_print_containing_files (pfile);
   cpp_print_file_and_line (pfile);
+#ifdef unSP
+  v_cpp_message (pfile, 1, msg, ap);
+#else
   v_cpp_message (pfile, 1, msgid, ap);
+#endif
 }
 
 void
@@ -2984,6 +2994,12 @@ v_cpp_warning (pfile, msgid, ap)
   const char *msgid;
   va_list ap;
 {
+#ifdef unSP
+  char *msg;
+
+  msg = alloca (strlen (msgid) + strlen ("WARNING: ") + 1);
+  sprintf (msg, "WARNING: %s", msgid);
+#endif
   if (CPP_OPTIONS (pfile)->inhibit_warnings)
     return;
 
@@ -2992,7 +3008,11 @@ v_cpp_warning (pfile, msgid, ap)
 
   cpp_print_containing_files (pfile);
   cpp_print_file_and_line (pfile);
+#ifdef unSP
+  v_cpp_message (pfile, 0, msg, ap);
+#else
   v_cpp_message (pfile, 0, msgid, ap);
+#endif
 }
 
 void
@@ -3049,13 +3069,23 @@ v_cpp_error_with_line (pfile, line, column, msgid, ap)
   va_list ap;
 {
   cpp_buffer *ip = cpp_file_buffer (pfile);
+#ifdef unSP
+  char *msg;
+
+  msg = alloca (strlen (msgid) + strlen ("ERROR: ") + 1);
+  sprintf (msg, "ERROR: %s", msgid);
+#endif
 
   cpp_print_containing_files (pfile);
 
   if (ip != NULL)
     cpp_file_line_for_message (pfile, ip->nominal_fname, line, column);
 
+#ifdef unSP
+  v_cpp_message (pfile, 1, msg, ap);
+#else
   v_cpp_message (pfile, 1, msgid, ap);
+#endif
 }
 
 void
@@ -3092,6 +3122,12 @@ v_cpp_warning_with_line (pfile, line, column, msgid, ap)
   va_list ap;
 {
   cpp_buffer *ip;
+#ifdef unSP
+  char *msg;
+
+  msg = alloca (strlen (msgid) + strlen ("WARNING: ") + 1);
+  sprintf (msg, "WARNING: %s", msgid);
+#endif
 
   if (CPP_OPTIONS (pfile)->inhibit_warnings)
     return;
@@ -3106,7 +3142,11 @@ v_cpp_warning_with_line (pfile, line, column, msgid, ap)
   if (ip != NULL)
     cpp_file_line_for_message (pfile, ip->nominal_fname, line, column);
 
+#ifdef
+  v_cpp_message (pfile, 0, msg, ap);
+#else
   v_cpp_message (pfile, 0, msgid, ap);
+#endif
 }  
 
 void
@@ -3191,7 +3231,18 @@ cpp_pedwarn_with_file_and_line VPROTO ((cpp_reader *pfile, char *file, int line,
     return;
   if (file != NULL)
     cpp_file_line_for_message (pfile, file, line, -1);
+#ifdef unSP
+  {
+    char *msg;
+
+    msg = alloca (strlen (msgid) + strlen ("WARNING: ") + 1);
+    sprintf (msg, "WARNING: %s", msgid);
+
+    v_cpp_message (pfile, CPP_OPTIONS (pfile)->pedantic_errors, msg, ap);
+  }
+#else
   v_cpp_message (pfile, CPP_OPTIONS (pfile)->pedantic_errors, msgid, ap);
+#endif
   va_end(ap);
 }
 
@@ -3251,7 +3302,11 @@ cpp_message_from_errno (pfile, is_error, name)
   if (ip != NULL)
     cpp_file_line_for_message (pfile, ip->nominal_fname, ip->lineno, -1);
 
+#ifdef unSP
+  cpp_message (pfile, is_error, "ERROR: %s: %s", name, my_strerror (e));
+#else
   cpp_message (pfile, is_error, "%s: %s", name, my_strerror (e));
+#endif
 }
 
 void
@@ -3259,7 +3314,11 @@ cpp_perror_with_name (pfile, name)
      cpp_reader *pfile;
      const char *name;
 {
+#ifdef unSP
+  cpp_message (pfile, 1, "ERROR: %s: %s: %s", progname, name, my_strerror (errno));
+#else
   cpp_message (pfile, 1, "%s: %s: %s", progname, name, my_strerror (errno));
+#endif
 }
 
 /* TODO:

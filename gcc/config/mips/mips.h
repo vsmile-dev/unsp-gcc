@@ -328,6 +328,10 @@ extern void		mips_select_section ();
 #define MASK_MAD	0x00040000	/* Generate mad/madu as on 4650.  */
 #define MASK_4300_MUL_FIX 0x00080000    /* Work-around early Vr4300 CPU bug */
 #define MASK_MIPS3900	0x00100000	/* like -mips1 only 3900 */
+
+#define MASK_UNALIGNED_INSN 0x00200000	/* Generate unaligned insns */
+#define MASK_NO_MAC	0x00400000	/* CPU has no MAC unit */
+
 #define MASK_MIPS16	0x01000000	/* Generate mips16 code */
 #define MASK_NO_CHECK_ZERO_DIV 0x04000000	/* divide by zero checking */
 #define MASK_CHECK_RANGE_DIV 0x08000000	/* divide result range checking */
@@ -358,6 +362,9 @@ extern void		mips_select_section ();
 
 /* generate mips 3900 insns */
 #define TARGET_MIPS3900         (target_flags & MASK_MIPS3900)
+
+#define TARGET_UNALIGNED_INSN	(target_flags & MASK_UNALIGNED_INSN)
+#define TARGET_NO_MAC		(target_flags & MASK_NO_MAC)
 
 					/* Mips vs. GNU assembler */
 #define TARGET_GAS		(target_flags & MASK_GAS)
@@ -542,6 +549,12 @@ extern void		mips_select_section ();
      "Trap on integer divide overflow"},				\
   {"no-check-range-division",-MASK_CHECK_RANGE_DIV,			\
      "Don't trap on integer divide overflow"},				\
+  {"unaligned-insn",	  MASK_UNALIGNED_INSN,				\
+     "Force use of unaligned insns"},					\
+  {"no-unaligned-insn",	 -MASK_UNALIGNED_INSN,				\
+     "Use no unaligned insns"},						\
+  {"no-mac",		  MASK_NO_MAC,					\
+     "CPU has no MAC units"},						\
   {"debug",		  MASK_DEBUG,					\
      NULL},								\
   {"debuga",		  MASK_DEBUG_A,					\

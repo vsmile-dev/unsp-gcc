@@ -9354,6 +9354,10 @@ error_from_errno (name)
       break;
     }
 
+#ifdef unSP
+  fprintf (stderr, "ERROR: ");
+#endif
+
   if (ip != NULL) {
     eprint_string (ip->nominal_fname, ip->nominal_fname_len);
     fprintf (stderr, ":%d: ", ip->lineno);
@@ -9639,9 +9643,26 @@ print_containing_files ()
     return;
 
   /* Find the other, outer source files.  */
+#ifdef unSP
   for (i--; i >= 0; i--)
     if (instack[i].fname != NULL) {
       ip = &instack[i];
+
+      eprint_string (ip->nominal_fname, ip->nominal_fname_len);
+      fprintf (stderr, ":%d", ip->lineno);
+
+      if (first) {
+	first = 0;
+	notice (": includes file\n");
+      } else {
+	notice (": includes file\n");
+      }
+    }
+#else
+  for (i--; i >= 0; i--)
+    if (instack[i].fname != NULL) {
+      ip = &instack[i];
+
       if (first) {
 	first = 0;
 	notice (   "In file included from ");
@@ -9652,6 +9673,7 @@ print_containing_files ()
       eprint_string (ip->nominal_fname, ip->nominal_fname_len);
       fprintf (stderr, ":%d", ip->lineno);
     }
+#endif
   if (! first)
     fprintf (stderr, ":\n");
 
@@ -10639,6 +10661,10 @@ static void
 perror_with_name (name)
      char *name;
 {
+#ifdef unSP
+  fprintf (stderr, "ERROR: ");
+#endif
+
   fprintf (stderr, "%s: %s: %s\n", progname, name, my_strerror (errno));
   errors++;
 }

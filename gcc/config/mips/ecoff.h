@@ -30,6 +30,21 @@ Boston, MA 02111-1307, USA.  */
 /* Use memcpy, et. al., rather than bcopy.  */
 #define TARGET_MEM_FUNCTIONS
 
+#define MULSI3_LIBCALL          "__Xmulsi3"
+#define DIVSI3_LIBCALL          "__Xdivsi3"
+#define UDIVSI3_LIBCALL         "__Xudivsi3"
+#define MODSI3_LIBCALL          "__Xmodsi3"
+#define UMODSI3_LIBCALL         "__Xumodsi3"
+
+#define MULDI3_LIBCALL          "__Xmuldi3"
+#define DIVDI3_LIBCALL          "__Xdivdi3"
+#define UDIVDI3_LIBCALL         "__Xudivdi3"
+#define MODDI3_LIBCALL          "__Xmoddi3"
+#define UMODDI3_LIBCALL         "__Xumoddi3"
+
+#define ABSSF_LIBCALL           "__Xfabsf"
+#define ABSDF_LIBCALL           "__Xfabsd"
+
 /* Don't assume anything about startfiles.  The linker script will load the
    appropriate startfiles.  */
 #define STARTFILE_SPEC ""

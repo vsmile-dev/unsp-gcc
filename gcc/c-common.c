@@ -54,7 +54,8 @@ int skip_evaluation;
 enum attrs {A_PACKED, A_NOCOMMON, A_COMMON, A_NORETURN, A_CONST, A_T_UNION,
 	    A_NO_CHECK_MEMORY_USAGE, A_NO_INSTRUMENT_FUNCTION,
 	    A_CONSTRUCTOR, A_DESTRUCTOR, A_MODE, A_SECTION, A_ALIGNED,
-	    A_UNUSED, A_FORMAT, A_FORMAT_ARG, A_WEAK, A_ALIAS,
+	    A_UNUSED, A_FORMAT, A_FORMAT_ARG, A_WEAK,  A_ALIAS,
+	    A_ISR, /* aladdin */
 	    A_NATIVE, A_GCC_PACK,
 	    };
 
@@ -396,6 +397,8 @@ init_attributes ()
   add_attribute (A_FORMAT, "format", 3, 3, 1);
   add_attribute (A_FORMAT_ARG, "format_arg", 1, 1, 1);
   add_attribute (A_WEAK, "weak", 0, 0, 1);
+  /* aladdin */
+  add_attribute (A_ISR, "ISR", 0, 0, 1);
   add_attribute (A_ALIAS, "alias", 1, 1, 1);
   add_attribute (A_NO_INSTRUMENT_FUNCTION, "no_instrument_function", 0, 0, 1);
   add_attribute (A_NO_CHECK_MEMORY_USAGE, "no_check_memory_usage", 0, 0, 1);
@@ -684,7 +687,19 @@ decl_attributes (node, attributes, prefix_attributes)
 		error_with_decl (node,
 				 "section of `%s' conflicts with previous declaration");
 	      else
+#ifdef unSP
+                {
+                  extern void add_sec_var (const char * var_name,
+                                           const char * sec_name);
+
+                  if (TARGET_WARN_SEC_VAR)
+                    add_sec_var (IDENTIFIER_POINTER (DECL_NAME (decl)),
+                                 TREE_STRING_POINTER (TREE_VALUE (args)));
+		  DECL_SECTION_NAME (decl) = TREE_VALUE (args);
+                }
+#else
 		DECL_SECTION_NAME (decl) = TREE_VALUE (args);
+#endif
 	    }
 	  else
 	    error_with_decl (node,
@@ -905,7 +920,12 @@ decl_attributes (node, attributes, prefix_attributes)
 	case A_WEAK:
 	  declare_weak (decl);
 	  break;
-
+	  /* aladdin */
+        case A_ISR:
+	  //DECL_LANG_FLAG_0(decl) = 1;
+	  //TREE_LANG_FLAG_0(decl) = 1;
+	  UNSP_ISR_FLAG (decl) = 1;
+	  break;
 	case A_ALIAS:
 	  if ((TREE_CODE (decl) == FUNCTION_DECL && DECL_INITIAL (decl))
 	      || (TREE_CODE (decl) != FUNCTION_DECL && ! DECL_EXTERNAL (decl)))

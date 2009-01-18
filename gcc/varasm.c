@@ -181,9 +181,21 @@ EXTRA_SECTION_FUNCTIONS
 void
 text_section ()
 {
+#ifndef unSP
   if (in_section != in_text)
+#endif
     {
-      fprintf (asm_out_file, "%s\n", TEXT_SECTION_ASM_OP);
+      /* aladdin */
+      if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+        {
+	   fprintf (asm_out_file, "// ISR ATTRIBUTE FUNCTION, LOCATE in .text SECTION\n");        \
+	   fprintf (asm_out_file, ".text\n");        \
+	   /* in_section = in_const; */
+	}
+      else
+        {
+          fprintf (asm_out_file, "%s\n", TEXT_SECTION_ASM_OP);
+	}
       in_section = in_text;
     }
 }
@@ -193,7 +205,9 @@ text_section ()
 void
 data_section ()
 {
+#ifndef unSP
   if (in_section != in_data)
+#endif
     {
       if (flag_shared_data)
 	{
@@ -216,7 +230,9 @@ void
 force_data_section ()
 {
   in_section = no_section;
+#ifndef unSP
   data_section ();
+#endif
 }
 
 /* Tell assembler to switch to read-only data section.  This is normally
@@ -312,7 +328,9 @@ do {								\
 void
 bss_section ()
 {
+#ifndef unSP
   if (in_section != in_bss)
+#endif
     {
 #ifdef SHARED_BSS_SECTION_ASM_OP
       if (flag_shared_data)
@@ -388,7 +406,9 @@ asm_output_aligned_bss (file, decl, name, size, align)
 void
 eh_frame_section ()
 {
+#ifndef unSP
   if (in_section != in_eh_frame)
+#endif
     {
       fprintf (asm_out_file, "%s\n", EH_FRAME_SECTION_ASM_OP);
       in_section = in_eh_frame;
@@ -1462,7 +1482,16 @@ assemble_variable (decl, top_level, at_end, dont_output_data)
 	}
       else
 #endif
-      ASM_GLOBALIZE_LABEL (asm_out_file, name);
+	{ /* shp add */
+#ifdef unSP
+#ifdef DBX_DEBUGGING_INFO
+	  /* File-scope global variables are output here.  */
+	  if (write_symbols == DBX_DEBUG && top_level)
+	    dbxout_symbol (decl, 0);
+#endif
+#endif	
+	  ASM_GLOBALIZE_LABEL (asm_out_file, name);
+	}
     }
 #if 0
   for (d = equivalents; d; d = TREE_CHAIN (d))
@@ -1499,10 +1528,13 @@ assemble_variable (decl, top_level, at_end, dont_output_data)
 
   /* Output the dbx info now that we have chosen the section.  */
 
+/* shp move following up */
+#ifndef unSP
 #ifdef DBX_DEBUGGING_INFO
   /* File-scope global variables are output here.  */
   if (write_symbols == DBX_DEBUG && top_level)
     dbxout_symbol (decl, 0);
+#endif
 #endif
 #ifdef SDB_DEBUGGING_INFO
   if (write_symbols == SDB_DEBUG && top_level

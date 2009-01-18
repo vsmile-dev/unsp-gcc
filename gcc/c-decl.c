@@ -2149,6 +2149,18 @@ pushdecl (x)
   register tree name = DECL_NAME (x);
   register struct binding_level *b = current_binding_level;
 
+#ifdef unSP
+  extern unsp_register_far_ptr_name ();
+  
+  if (TREE_CODE (x) == FUNCTION_DECL)
+    {
+      unsp_register_far_ptr_name (IDENTIFIER_POINTER (name));
+      /*
+      fprintf (stderr, "%s\n", IDENTIFIER_POINTER (name));
+      */
+    }
+#endif
+
   DECL_CONTEXT (x) = current_function_decl;
   /* A local extern declaration for a function doesn't constitute nesting.
      A local auto declaration does, since it's a forward decl

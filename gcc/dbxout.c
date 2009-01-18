@@ -621,8 +621,12 @@ dbxout_continue ()
 #else
   fprintf (asmfile, "\\\\");
 #endif
+#ifdef unSP
+  fprintf (asmfile, "\",128,0,0,0\',0x0d,0x0a\n\t.DW \'.stabs \"");
+#else
   dbxout_finish_symbol (NULL_TREE);
   fprintf (asmfile, "%s \"", ASM_STABS_OP);
+#endif
   current_sym_nchars = 0;
 }
 #endif /* DBX_CONTIN_LENGTH > 0 */
@@ -981,12 +985,26 @@ dbxout_range_type (type)
       && TREE_CODE (TYPE_MAX_VALUE (type)) == INTEGER_CST)
     {
       fputc (';', asmfile);
+#ifdef unSP
+      /*
+         I think using UNSIGNED here is more proper,
+         even not in CPU16
+         Tim Ouyang
+      */
+      fprintf (asmfile, HOST_WIDE_INT_PRINT_UNSIGNED,
+	       TREE_INT_CST_LOW (TYPE_MAX_VALUE (type)));
+#else
       fprintf (asmfile, HOST_WIDE_INT_PRINT_DEC,
 	       TREE_INT_CST_LOW (TYPE_MAX_VALUE (type)));
+#endif
       fputc (';', asmfile);
     }
   else
+#ifdef unSP
+    fprintf (asmfile,";%u;",(unsigned int)(-1) );
+#else
     fprintf (asmfile, ";-1;");
+#endif
 }
 
 /* Output a reference to a type.  If the type has not yet been
@@ -1740,7 +1758,20 @@ dbxout_symbol (decl, local)
 		 IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME (decl)),
 		 IDENTIFIER_POINTER (DECL_NAME (context)));
 
+#ifdef unSP
+      fprintf (asmfile,"\",%d,0,0,\',0,0,offset _%s,seg _%s," ,
+               current_sym_code ,
+	       IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME (decl)),
+	       IDENTIFIER_POINTER (DECL_ASSEMBLER_NAME (decl)) );
+     /* aladdin */ 
+     if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+       fprintf (asmfile,"0x0d,0x0a\n.TEXT\n");
+     else
+       fprintf (asmfile,"0x0d,0x0a\n.CODE\n");
+      force_data_section ();
+#else
       dbxout_finish_symbol (decl);
+#endif
       break;
 
     case TYPE_DECL:
@@ -1798,7 +1829,18 @@ dbxout_symbol (decl, local)
 		fprintf (asmfile, "%s \"%s:T", ASM_STABS_OP,
 			 IDENTIFIER_POINTER (name));
 		dbxout_type (type, 1, 0);
+#ifdef unSP
+		fprintf(asmfile,"Error ?\n");
 		dbxout_finish_symbol (NULL_TREE);
+                /* aladdin */ 
+                if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+                   fprintf (asmfile,"0x0d,0x0a\n.TEXT\n");
+		else
+                   fprintf (asmfile,"0x0d,0x0a\n.CODE\n");
+                force_data_section ();
+#else
+		dbxout_finish_symbol (NULL_TREE);
+#endif
 	      }
 
 	    /* Output typedef name.  */
@@ -1829,7 +1871,17 @@ dbxout_symbol (decl, local)
 	    current_sym_code = DBX_TYPE_DECL_STABS_CODE;
 
 	    dbxout_type (type, 1, 0);
+#ifdef unSP
+	    fprintf(asmfile,"\",%d,0,0,0\'," , current_sym_code);
+            /* aladdin */ 
+            if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+              fprintf (asmfile, "0x0d,0x0a\n.TEXT\n");
+	    else
+              fprintf (asmfile, "0x0d,0x0a\n.CODE\n");
+            force_data_section ();
+#else
 	    dbxout_finish_symbol (decl);
+#endif
 	    did_output = 1;
 	  }
 
@@ -1859,7 +1911,17 @@ dbxout_symbol (decl, local)
 	    fprintf (asmfile, "%s \"%s:T", ASM_STABS_OP,
 		     IDENTIFIER_POINTER (name));
 	    dbxout_type (type, 1, 0);
+#ifdef unSP
+	    fprintf(asmfile,"\",%d,0,0,0\'," , current_sym_code);
+            /* aladdin */ 
+            if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+              fprintf (asmfile, "0x0d,0x0a\n.TEXT\n");
+	    else
+              fprintf (asmfile, "0x0d,0x0a\n.CODE\n");
+            force_data_section ();
+#else
 	    dbxout_finish_symbol (NULL_TREE);
+#endif
 	    did_output = 1;
 	  }
 
@@ -1877,7 +1939,17 @@ dbxout_symbol (decl, local)
 	       harmless name of ` '.  */
 	    fprintf (asmfile, "%s \" :T", ASM_STABS_OP);
 	    dbxout_type (type, 1, 0);
+#ifdef unSP
+	    fprintf(asmfile,"\",%d,0,0,0\'," , current_sym_code);
+            /* aladdin */ 
+            if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+              fprintf (asmfile, "0x0d,0x0a\n.TEXT\n");
+	    else
+              fprintf (asmfile, "0x0d,0x0a\n.CODE\n");
+            force_data_section ();
+#else
 	    dbxout_finish_symbol (NULL_TREE);
+#endif
 	  }
 
 	/* Prevent duplicate output of a typedef.  */
@@ -2042,6 +2114,36 @@ dbxout_symbol_location (decl, type, suffix, home)
 	      current_sym_code = N_STSYM;
 	    }
 	}
+#ifdef unSP
+	FORCE_TEXT;
+
+#ifdef DBX_STATIC_BLOCK_START
+	DBX_STATIC_BLOCK_START (asmfile, current_sym_code);
+#endif
+
+	dbxout_symbol_name (decl, suffix, letter);
+	dbxout_type (type, 0, 0);
+	fprintf(asmfile,"\",%d,0,0,\',0,0,offset ", current_sym_code);
+/* shp's old code
+	        IDENTIFIER_POINTER (DECL_NAME (decl)),
+	        IDENTIFIER_POINTER (DECL_NAME (decl)) );
+*/
+	assemble_name(asmfile, XSTR(XEXP(DECL_RTL(decl), 0), 0));
+	fprintf(asmfile, ",seg ");
+	assemble_name(asmfile, XSTR(XEXP(DECL_RTL(decl), 0), 0));
+	fprintf(asmfile, ",");
+
+        /* aladdin */ 
+        if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+          fprintf (asmfile, "0x0d,0x0a\n.TEXT\n");
+	else
+          fprintf (asmfile, "0x0d,0x0a\n.CODE\n");
+        force_data_section ();
+#ifdef DBX_STATIC_BLOCK_END
+	DBX_STATIC_BLOCK_END (asmfile, current_sym_code);
+#endif
+	return;
+#endif
     }
   else if (regno >= 0)
     {
@@ -2087,12 +2189,65 @@ dbxout_symbol_location (decl, type, suffix, home)
       /* Don't use REFERENCE_TYPE because dbx can't handle that.  */
       type = make_node (POINTER_TYPE);
       TREE_TYPE (type) = TREE_TYPE (decl);
+#ifdef unSP
+      /* Ok, start a symtab entry and output the variable name.  */
+      FORCE_TEXT;
+
+#ifdef DBX_STATIC_BLOCK_START
+      DBX_STATIC_BLOCK_START (asmfile, current_sym_code);
+#endif
+
+      dbxout_symbol_name (decl, suffix, letter);
+      dbxout_type (type, 0, 0);
+      /*
+      fprintf(asmfile,"May exist ?\n");
+      */
+      fprintf(asmfile, "\",%d,0,0,%d',", current_sym_code, current_sym_value);
+      /* aladdin */ 
+      if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+        fprintf (asmfile, "0x0d,0x0a\n.TEXT\n");
+      else
+        fprintf (asmfile, "0x0d,0x0a\n.CODE\n");
+      force_data_section ();
+
+#ifdef DBX_STATIC_BLOCK_END
+      DBX_STATIC_BLOCK_END (asmfile, current_sym_code);
+#endif
+      return;
+#endif
     }
   else if (GET_CODE (home) == MEM
 	   && GET_CODE (XEXP (home, 0)) == REG)
     {
       current_sym_code = N_LSYM;
       current_sym_value = DEBUGGER_AUTO_OFFSET (XEXP (home, 0));
+
+#ifdef unSP
+      /* Ok, start a symtab entry and output the variable name.  */
+      FORCE_TEXT;
+
+#ifdef DBX_STATIC_BLOCK_START
+      DBX_STATIC_BLOCK_START (asmfile, current_sym_code);
+#endif
+
+      dbxout_symbol_name (decl, suffix, letter);
+      dbxout_type (type, 0, 0);
+/*
+      fprintf(asmfile,"\",%d,0,0,%d  wrong1 ?\'," ,
+*/
+      fprintf(asmfile, "\",%d,0,0,%d',", current_sym_code, current_sym_value);
+      /* aladdin */ 
+      if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+        fprintf (asmfile, "0x0d,0x0a\n.TEXT\n");
+      else
+        fprintf (asmfile, "0x0d,0x0a\n.CODE\n");
+      force_data_section ();
+
+#ifdef DBX_STATIC_BLOCK_END
+      DBX_STATIC_BLOCK_END (asmfile, current_sym_code);
+#endif
+      return;
+#endif
     }
   else if (GET_CODE (home) == MEM
 	   && GET_CODE (XEXP (home, 0)) == PLUS
@@ -2102,6 +2257,31 @@ dbxout_symbol_location (decl, type, suffix, home)
       /* RTL looks like (MEM (PLUS (REG...) (CONST_INT...)))
 	 We want the value of that CONST_INT.  */
       current_sym_value = DEBUGGER_AUTO_OFFSET (XEXP (home, 0));
+
+#ifdef unSP
+      /* Ok, start a symtab entry and output the variable name.  */
+      FORCE_TEXT;
+
+#ifdef DBX_STATIC_BLOCK_START
+      DBX_STATIC_BLOCK_START (asmfile, current_sym_code);
+#endif
+
+      dbxout_symbol_name (decl, suffix, letter);
+      dbxout_type (type, 0, 0);
+      fprintf(asmfile,"\",%d,0,0,%d\'," ,
+              current_sym_code , current_sym_value  );
+      /* aladdin */ 
+      if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+        fprintf (asmfile, "0x0d,0x0a\n.TEXT\n");
+      else
+        fprintf (asmfile, "0x0d,0x0a\n.CODE\n");
+      force_data_section ();
+
+#ifdef DBX_STATIC_BLOCK_END
+      DBX_STATIC_BLOCK_END (asmfile, current_sym_code);
+#endif
+      return;
+#endif
     }
   else if (GET_CODE (home) == MEM
 	   && GET_CODE (XEXP (home, 0)) == CONST)
@@ -2120,6 +2300,31 @@ dbxout_symbol_location (decl, type, suffix, home)
       current_sym_code = N_LCSYM;
       letter = 'V';
       current_sym_addr = XEXP (XEXP (home, 0), 0);
+
+#ifdef unSP
+      /* Ok, start a symtab entry and output the variable name.  */
+      FORCE_TEXT;
+
+#ifdef DBX_STATIC_BLOCK_START
+      DBX_STATIC_BLOCK_START (asmfile, current_sym_code);
+#endif
+
+      dbxout_symbol_name (decl, suffix, letter);
+      dbxout_type (type, 0, 0);
+      fprintf(asmfile,"\",%d,0,0,%d\',0,0," ,
+              current_sym_code ,INTVAL(current_sym_addr) );
+      /* aladdin */ 
+      if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+        fprintf (asmfile, "0x0d,0x0a\n.TEXT\n");
+      else
+        fprintf (asmfile, "0x0d,0x0a\n.CODE\n");
+      force_data_section ();
+
+#ifdef DBX_STATIC_BLOCK_END
+      DBX_STATIC_BLOCK_END (asmfile, current_sym_code);
+#endif
+      return;
+#endif
     }
   else if (GET_CODE (home) == CONCAT)
     {
@@ -2150,6 +2355,7 @@ dbxout_symbol_location (decl, type, suffix, home)
        want us to ignore this variable.  */
     return;
 
+#ifndef unSP
   /* Ok, start a symtab entry and output the variable name.  */
   FORCE_TEXT;
 
@@ -2163,6 +2369,7 @@ dbxout_symbol_location (decl, type, suffix, home)
 
 #ifdef DBX_STATIC_BLOCK_END
   DBX_STATIC_BLOCK_END (asmfile, current_sym_code);
+#endif
 #endif
 }
 
@@ -2315,7 +2522,18 @@ dbxout_parms (parms)
 	       produce an erropneous value.  */
  	    dbxout_type (DECL_ARG_TYPE (parms), 0, 0);
 	    current_sym_value = DEBUGGER_ARG_OFFSET (current_sym_value, addr);
+#ifdef unSP
+	    fprintf(asmfile,"\",%d,0,0,%d\'," ,
+	            current_sym_code ,current_sym_value + current_frame_info.total_size);
+            /* aladdin */ 
+            if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+              fprintf (asmfile, "0x0d,0x0a\n.TEXT\n");
+	    else
+              fprintf (asmfile, "0x0d,0x0a\n.CODE\n");
+            force_data_section ();
+#else
 	    dbxout_finish_symbol (parms);
+#endif
 	  }
 	else if (GET_CODE (DECL_RTL (parms)) == REG)
 	  {
@@ -2366,7 +2584,18 @@ dbxout_parms (parms)
 	      }
 
 	    dbxout_type (parm_type, 0, 0);
+#ifdef unSP
+	    fprintf(asmfile,"\",%d,0,0,%d\'," ,
+	            current_sym_code ,current_sym_value + current_frame_info.total_size);
+            /* aladdin */ 
+            if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+              fprintf (asmfile, "0x0d,0x0a\n.TEXT\n");
+	    else
+              fprintf (asmfile, "0x0d,0x0a\n.CODE\n");
+            force_data_section ();
+#else
 	    dbxout_finish_symbol (parms);
+#endif
 	  }
 	else if (GET_CODE (DECL_RTL (parms)) == MEM
 		 && GET_CODE (XEXP (DECL_RTL (parms), 0)) == REG
@@ -2420,7 +2649,18 @@ dbxout_parms (parms)
 	      }
 
 	    dbxout_type (TREE_TYPE (parms), 0, 0);
+#ifdef unSP
+	    fprintf(asmfile,"\",%d,0,0,%d\'," ,
+	            current_sym_code ,current_sym_value + current_frame_info.total_size);
+            /* aladdin */ 
+            if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+              fprintf (asmfile, "0x0d,0x0a\n.TEXT\n");
+	    else
+              fprintf (asmfile, "0x0d,0x0a\n.CODE\n");
+            force_data_section ();
+#else
 	    dbxout_finish_symbol (parms);
+#endif
 	  }
 	else if (GET_CODE (DECL_RTL (parms)) == MEM
 		 && XEXP (DECL_RTL (parms), 0) != const0_rtx
@@ -2472,7 +2712,18 @@ dbxout_parms (parms)
 	      = DEBUGGER_ARG_OFFSET (current_sym_value,
 				     XEXP (DECL_RTL (parms), 0));
 	    dbxout_type (TREE_TYPE (parms), 0, 0);
+#ifdef unSP
+	    fprintf(asmfile,"\",%d,0,0,%d\'," ,
+	            current_sym_code ,current_sym_value + current_frame_info.total_size);
+            /* aladdin */ 
+            if (current_function_decl && UNSP_ISR_FLAG (current_function_decl))  
+              fprintf (asmfile, "0x0d,0x0a\n.TEXT\n");
+	    else
+              fprintf (asmfile, "0x0d,0x0a\n.CODE\n");
+            force_data_section ();
+#else
 	    dbxout_finish_symbol (parms);
+#endif
 	  }
       }
 }
@@ -2674,7 +2925,9 @@ dbxout_really_begin_function (decl)
      tree decl;
 {
   dbxout_symbol (decl, 0);
+#ifndef unSP
   dbxout_parms (DECL_ARGUMENTS (decl));
+#endif
   if (DECL_NAME (DECL_RESULT (decl)) != 0)
     dbxout_symbol (DECL_RESULT (decl), 1);
 }
@@ -2702,6 +2955,9 @@ dbxout_function (decl)
 {
 #ifndef DBX_FUNCTION_FIRST
   dbxout_really_begin_function (decl);
+#endif
+#ifdef unSP
+  dbxout_parms (DECL_ARGUMENTS (decl));
 #endif
   dbxout_block (DECL_INITIAL (decl), 0, DECL_ARGUMENTS (decl));
 #ifdef DBX_OUTPUT_FUNCTION_END

@@ -1642,7 +1642,7 @@
 		 (match_operand:SI 2 "register_operand" "d")))
    (clobber (match_scratch:SI 3 "=h"))
    (clobber (match_scratch:SI 4 "=a"))]
-  ""
+  "!TARGET_NO_MAC"
   "
 {
   if (HAVE_mulsi3_mult3)
@@ -1852,7 +1852,7 @@
   [(set (match_operand:DI 0 "register_operand" "=x")
 	(mult:DI (sign_extend:DI (match_operand:SI 1 "register_operand" "d"))
 		 (sign_extend:DI (match_operand:SI 2 "register_operand" "d"))))]
-  ""
+  "!TARGET_NO_MAC"
   "
 {
   rtx dummy = gen_rtx (SIGN_EXTEND, DImode, const0_rtx);
@@ -1869,7 +1869,7 @@
   [(set (match_operand:DI 0 "register_operand" "=x")
 	(mult:DI (zero_extend:DI (match_operand:SI 1 "register_operand" "d"))
 		 (zero_extend:DI (match_operand:SI 2 "register_operand" "d"))))]
-  ""
+  "!TARGET_NO_MAC"
   "
 {
   rtx dummy = gen_rtx (ZERO_EXTEND, DImode, const0_rtx);
@@ -1926,7 +1926,7 @@
 	 (lshiftrt:DI (mult:DI (sign_extend:DI (match_operand:SI 1 "register_operand" "d"))
 			       (sign_extend:DI (match_operand:SI 2 "register_operand" "d")))
 		      (const_int 32))))]
-  ""
+  "!TARGET_NO_MAC"
   "
 {
   rtx dummy = gen_rtx (SIGN_EXTEND, DImode, const0_rtx);
@@ -1948,7 +1948,7 @@
 	 (lshiftrt:DI (mult:DI (zero_extend:DI (match_operand:SI 1 "register_operand" "d"))
 			       (zero_extend:DI (match_operand:SI 2 "register_operand" "d")))
 		      (const_int 32))))]
-  ""
+  "!TARGET_NO_MAC"
   "
 {
   rtx dummy = gen_rtx (ZERO_EXTEND, DImode, const0_rtx);
@@ -2238,7 +2238,7 @@
    (clobber (match_scratch:SI 4 "=l"))
    (clobber (match_scratch:SI 5 "=h"))
    (clobber (match_scratch:SI 6 "=a"))]
-  "optimize"
+  "optimize && !TARGET_NO_MAC"
   "
 {
   emit_insn (gen_divmodsi4_internal (operands[0], operands[1], operands[2],
@@ -2334,7 +2334,7 @@
    (clobber (match_scratch:SI 4 "=l"))
    (clobber (match_scratch:SI 5 "=h"))
    (clobber (match_scratch:SI 6 "=a"))]
-  "optimize"
+  "optimize && !TARGET_NO_MAC"
   "
 {
   emit_insn (gen_udivmodsi4_internal (operands[0], operands[1], operands[2],
@@ -2501,7 +2501,7 @@
 		(match_operand:SI 2 "register_operand" "d")))
    (clobber (match_scratch:SI 3 "=h"))
    (clobber (match_scratch:SI 4 "=a"))]
-  "!optimize"
+  "!optimize && !TARGET_NO_MAC"
   "
 {
   emit_insn (gen_divsi3_internal (operands[0], operands[1], operands[2]));
@@ -2583,7 +2583,7 @@
 		(match_operand:SI 2 "register_operand" "d")))
    (clobber (match_scratch:SI 3 "=l"))
    (clobber (match_scratch:SI 4 "=a"))]
-  "!optimize"
+  "!optimize && !TARGET_NO_MAC"
   "
 {
   emit_insn (gen_modsi3_internal (operands[0], operands[1], operands[2]));
@@ -2665,7 +2665,7 @@
 		 (match_operand:SI 2 "register_operand" "d")))
    (clobber (match_scratch:SI 3 "=h"))
    (clobber (match_scratch:SI 4 "=a"))]
-  "!optimize"
+  "!optimize && !TARGET_NO_MAC"
   "
 {
   emit_insn (gen_udivsi3_internal (operands[0], operands[1], operands[2]));
@@ -2729,7 +2729,7 @@
 		 (match_operand:SI 2 "register_operand" "d")))
    (clobber (match_scratch:SI 3 "=l"))
    (clobber (match_scratch:SI 4 "=a"))]
-  "!optimize"
+  "!optimize && !TARGET_NO_MAC"
   "
 {
   emit_insn (gen_umodsi3_internal (operands[0], operands[1], operands[2]));
@@ -4491,7 +4491,7 @@ move\\t%0,%z4\\n\\
 	(sign_extract (match_operand:QI 1 "memory_operand" "")
 		      (match_operand 2 "immediate_operand" "")
 		      (match_operand 3 "immediate_operand" "")))]
-  "!TARGET_MIPS16"
+  "!TARGET_MIPS16 && TARGET_UNALIGNED_INSN"
   "
 {
   /* If the field does not start on a byte boundary, then fail.  */
@@ -4539,7 +4539,7 @@ move\\t%0,%z4\\n\\
 	(zero_extract (match_operand:QI 1 "memory_operand" "")
 		      (match_operand 2 "immediate_operand" "")
 		      (match_operand 3 "immediate_operand" "")))]
-  "!TARGET_MIPS16"
+  "!TARGET_MIPS16 && TARGET_UNALIGNED_INSN"
   "
 {
   /* If the field does not start on a byte boundary, then fail.  */
@@ -4587,7 +4587,7 @@ move\\t%0,%z4\\n\\
 		      (match_operand 1 "immediate_operand" "")
 		      (match_operand 2 "immediate_operand" ""))
 	(match_operand 3 "register_operand" ""))]
-  "!TARGET_MIPS16"
+  "!TARGET_MIPS16 && TARGET_UNALIGNED_INSN"
   "
 {
   /* If the field does not start on a byte boundary, then fail.  */
@@ -4634,7 +4634,7 @@ move\\t%0,%z4\\n\\
 (define_insn "movsi_ulw"
   [(set (match_operand:SI 0 "register_operand" "=&d,&d")
 	(unspec:SI [(match_operand:BLK 1 "general_operand" "R,o")] 0))]
-  "!TARGET_MIPS16"
+  "!TARGET_MIPS16 && TARGET_UNALIGNED_INSN"
   "*
 {
   rtx offset = const0_rtx;
@@ -4663,7 +4663,7 @@ move\\t%0,%z4\\n\\
 (define_insn "movsi_usw"
   [(set (match_operand:BLK 0 "memory_operand" "=R,o")
 	(unspec:BLK [(match_operand:SI 1 "reg_or_0_operand" "dJ,dJ")] 1))]
-  "!TARGET_MIPS16"
+  "!TARGET_MIPS16 && TARGET_UNALIGNED_INSN"
   "*
 {
   rtx offset = const0_rtx;
