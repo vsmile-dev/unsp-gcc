@@ -4662,43 +4662,46 @@
 
 (define_expand "neghi2"
   [(set (match_operand:HI 0 "register_operand" "")
-        (neg:HI (match_operand:HI 1 "nonregister_operand" "")))]
+        (neg:HI (match_operand:HI 1 "general_operand" "")))]
   ""
   "
 {
   if (GET_CODE (operands[1]) == REG)
-    FAIL;
-
-  if (TARGET_WARN_SEC_VAR)
     {
-      char * var_name;
-      char * sec_name;
-      extern char * check_sec_var(rtx, char **, char **);
-
-      if (check_sec_var (operands[0], &var_name, &sec_name))
-        warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
-      if (check_sec_var (operands[1], &var_name, &sec_name))
-        warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
-    }
-
-  emit_insn (gen_movhi_ri (operands[0], const0_rtx));
-
-  if (GET_CODE (operands[1]) == CONST_INT)
-    {
-      emit_insn (gen_subhi3_rri (operands[0], operands[0], operands[1]));
     }
   else
     {
-      if (direct16_memory_operand (operands[1], HImode))
+      if (TARGET_WARN_SEC_VAR)
         {
-          emit_insn (gen_subhi3_rrQ (operands[0], operands[0], operands[1]));
+          char * var_name;
+          char * sec_name;
+          extern char * check_sec_var(rtx, char **, char **);
+
+          if (check_sec_var (operands[0], &var_name, &sec_name))
+            warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
+          if (check_sec_var (operands[1], &var_name, &sec_name))
+            warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
+        }
+
+      emit_insn (gen_movhi_ri (operands[0], const0_rtx));
+
+      if (GET_CODE (operands[1]) == CONST_INT)
+        {
+          emit_insn (gen_subhi3_rri (operands[0], operands[0], operands[1]));
         }
       else
         {
-          emit_insn (gen_subhi3_r0all (operands[0], operands[0], operands[1]));
+          if (direct16_memory_operand (operands[1], HImode))
+            {
+              emit_insn (gen_subhi3_rrQ (operands[0], operands[0], operands[1]));
+            }
+          else
+            {
+              emit_insn (gen_subhi3_r0all (operands[0], operands[0], operands[1]));
+            }
         }
+      DONE;
     }
-  DONE;
 }")
 
 (define_expand "neghf2"
@@ -4758,6 +4761,45 @@
     {
       output_asm_insn (\"%0=-%1\\t// QImode negative\", operands);
     }
+  return \"\";
+}")
+
+(define_insn "neghi2_rr"
+  [(set (match_operand:HI 0 "register_operand" "=r")
+        (neg:HI (match_operand:HI 1 "register_operand" "r")))]
+  ""
+  "*
+{
+  if (GET_CODE (operands[1]) == REG)
+    {
+      rtx xops[4];
+
+      xops[0] = operands[0];
+      xops[1] = gen_rtx_REG (QImode, REGNO (operands[0]) + 1);
+      xops[2] = operands[1];
+      xops[3] = gen_rtx_REG (QImode, REGNO (operands[1]) + 1);
+
+      output_asm_insn (\"// neghi2 %1:%0 %3:%2\", xops);
+      if (REGNO (operands[0]) == REGNO (operands[1]) + 1)
+        {
+          output_asm_insn (\"%1 = %3 ^ 0xFFFF\", xops);
+          output_asm_insn (\"%0 = %2 ^ 0xFFFF\", xops);
+          output_asm_insn (\"%0 = %0 + 1\", xops);
+          output_asm_insn (\"%1 = %1 + 0, Carry\", xops);
+        }
+      else
+        {
+          output_asm_insn (\"%0 = %2 ^ 0xFFFF\", xops);
+          output_asm_insn (\"%1 = %3 ^ 0xFFFF\", xops);
+          output_asm_insn (\"%0 = %0 + 1\", xops);
+          output_asm_insn (\"%1 = %1 + 0, Carry\", xops);
+        }
+    }
+  else
+    {
+      abort ();
+    }
+  
   return \"\";
 }")
 

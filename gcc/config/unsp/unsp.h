@@ -21,7 +21,7 @@ Boston, MA 02111-1307, USA.  */
 
 #define unSP 1
 #define HAVE_cc0
-#define UNSP_VERSION_STRING "1.0.16"
+#define UNSP_VERSION_STRING "1.0.17"
 
 extern int rtx_equal_function_value_matters;
 
