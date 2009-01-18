@@ -21,7 +21,7 @@ Boston, MA 02111-1307, USA.  */
 
 #define unSP 1
 #define HAVE_cc0
-#define UNSP_VERSION_STRING "1.0.19"
+#define UNSP_VERSION_STRING "1.0.20"
 
 extern int rtx_equal_function_value_matters;
 
@@ -1062,11 +1062,11 @@ extern void function_epilogue ();
 
 /* A C expression that is nonzero the machine supports
    post-increment addressing.  */
-#define HAVE_POST_INCREMENT     1
+#define HAVE_POST_INCREMENT     0
 
 /* Similar for other kinds of addressing.  */
-#define HAVE_POST_DECREMENT     1
-#define HAVE_PRE_INCREMENT      1
+#define HAVE_POST_DECREMENT     0
+#define HAVE_PRE_INCREMENT      0
 /*
 #define HAVE_PRE_DECREMENT      0
 */

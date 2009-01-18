@@ -124,6 +124,42 @@ override_options ()
     unsp_packed_string_prefix = '@';
 }
 
+int
+set_bit_immediate_operand (rtx op)
+{
+  int i, val;
+
+  if (GET_CODE (op) != CONST_INT)
+    return 0;
+
+  val = INTVAL (op);
+  for (i = 1; i <= 16; i++)
+    {
+      if (val == (1 << (i - 1)))
+        return i;
+    }
+
+  return 0;
+}
+
+int
+clear_bit_immediate_operand (rtx op)
+{
+  int i, val;
+
+  if (GET_CODE (op) != CONST_INT)
+    return 0;
+
+  val = INTVAL (op) & 0xFFFF;
+  for (i = 1; i <= 16; i++)
+    {
+      if (val == (0xFFFF ^ (1 << (i - 1))))
+        return i;
+    }
+
+  return 0;
+}
+
 /*
 int
 symbolic_address_p (op)
@@ -204,8 +240,8 @@ non_direct16_memory_operand (op, mode)
      rtx op;
      enum machine_mode mode;
 {
-  if (general_operand (op, mode) 
-      && GET_CODE (op) == MEM 
+  if (general_operand (op, mode)
+      && GET_CODE (op) == MEM
       && direct16_memory_operand (op, mode) == 0)
         return 1;
   return 0;
@@ -218,7 +254,7 @@ lvalue_operand (op, mode)
      rtx op;
      enum machine_mode mode;
 {
-  if (general_operand (op, mode) 
+  if (general_operand (op, mode)
       && (direct16_memory_operand (op, mode) || REG_P (op)))
     return 1;
   return 0;
@@ -237,7 +273,7 @@ call_address_operand (op, mode)
 
     case CONST:
       op = XEXP (op, 0);
-      return ((GET_CODE (XEXP (op, 0)) == SYMBOL_REF 
+      return ((GET_CODE (XEXP (op, 0)) == SYMBOL_REF
                || GET_CODE (XEXP (op, 0)) == LABEL_REF)
 	      && GET_CODE (XEXP (op, 1)) == CONST_INT);
     default:
@@ -256,7 +292,7 @@ initial_elimination_offset (from, to)
     offset = 0;
   else if (from == ARG_POINTER_REGNUM && to == HARD_FRAME_POINTER_REGNUM) {
       int regno;
-      
+
       offset = 0;
       for (regno = 0; regno < 5; regno++)
 	if (regs_ever_live[regno] && ! call_used_regs[regno])
@@ -268,7 +304,7 @@ initial_elimination_offset (from, to)
   else if (from == ARG_POINTER_REGNUM && to == STACK_POINTER_REGNUM)
     {
       int regno;
-      
+
       offset = 0;
       for (regno = 0; regno < 5; regno++)
 	if (regs_ever_live[regno] && ! call_used_regs[regno])
@@ -332,10 +368,10 @@ function_prologue (file, size)
      int  size;
 {
   int total_size;
-  if (/*DECL_LANG_FLAG_0 (current_function_decl) || 
+  if (/*DECL_LANG_FLAG_0 (current_function_decl) ||
       TREE_LANG_FLAG_0 (current_function_decl)*/
       UNSP_ISR_FLAG (current_function_decl) )
-    { 
+    {
       fprintf (file, "\t// ISR ATTRIBUTE FUNCTION, PUSH r1,bp\n");
       fprintf(file, "\tpush r1,bp to [sp]\n\n");
     }
@@ -343,18 +379,18 @@ function_prologue (file, size)
     {
     /* Reset the frame info */
       current_frame_info = zero_frame_info;
-  
+
       compute_frame_size (size);
       total_size = current_frame_info.total_size;
-      fprintf (file, "\t// total=%d, vars=%d\n", 
+      fprintf (file, "\t// total=%d, vars=%d\n",
                current_frame_info.total_size, current_frame_info.var_size);
-    
+
       fprintf (file, "\t// frame_pointer_needed: %d\n", frame_pointer_needed);
-    
+
       /* Save frame_pointer */
       if (frame_pointer_needed)
-        { 
-	  if (!UNSP_ISR_FLAG (current_function_decl)) 
+        {
+	  if (!UNSP_ISR_FLAG (current_function_decl))
 	    fprintf(file, "\tpush bp to [sp]\n");
           if (total_size)
 	    fprintf (file, "\tsp-=%d\n", total_size);
@@ -373,14 +409,14 @@ function_epilogue (file, size)
   int offset_sp = current_frame_info.total_size;
   fprintf (file, "\n" );
   if (frame_pointer_needed)
-    { 
-      if (offset_sp) 
-	fprintf (file, "\tsp+=%d\n", offset_sp); 
-      if (!UNSP_ISR_FLAG (current_function_decl)) 
+    {
+      if (offset_sp)
+	fprintf (file, "\tsp+=%d\n", offset_sp);
+      if (!UNSP_ISR_FLAG (current_function_decl))
 	fprintf (file, "\tpop bp from [sp]\n");
     }
   if (UNSP_ISR_FLAG (current_function_decl))
-    { 
+    {
       fprintf (file, "\t// ISR ATTRIBUTE FUNCTION, POP r1,bp\n");
       fprintf(file, "\tpop r1,bp from [sp]\n");
       fprintf (file, "\treti\n");
@@ -612,7 +648,7 @@ unsp_asm_file_end (file)
   if (used_far_ptr_head != NULL)
     {
       char name[60];
-      
+
       fprintf (file, "\n// far pointer entry table:\n");
       for (p = used_far_ptr_head; p != NULL; q = p->next, free (p), p = q)
         {
@@ -815,7 +851,7 @@ unsp_register_far_ptr_name (name)
      const char *name;
 {
   struct func_list *p;
-  
+
   for (p = far_ptr_head; p; p = p->next)
     {
       if (strcmp (p->name, name) == 0)
@@ -834,7 +870,7 @@ unsp_register_used_far_ptr_name (name)
      const char *name;
 {
   struct func_list *p;
-  
+
   for (p = used_far_ptr_head; p; p = p->next)
     {
       if (strcmp (p->name, name) == 0)
@@ -848,7 +884,7 @@ unsp_register_used_far_ptr_name (name)
   used_far_ptr_head = p;
 }
 
-int 
+int
 far_ptr_name (fpname)
      const char *fpname;
 {
@@ -1237,16 +1273,16 @@ gen_compare_reg (code, x, y)
     }
   else if (mode == QImode)
     {
-      emit_insn (gen_rtx (SET, VOIDmode, 
+      emit_insn (gen_rtx (SET, VOIDmode,
                           cc0_rtx, gen_rtx (COMPARE, mode, x, y)));
     }
   else if (mode == HImode)
     {
       if (code == GTU || code == GEU || code == LTU || code == LEU)
 	{
-          emit_insn (gen_rtx (SET, VOIDmode, 
+          emit_insn (gen_rtx (SET, VOIDmode,
                               cc0_rtx, gen_rtx (COMPARE, mode, x, y)));
-	
+
 	}
       else
 	{
@@ -1292,10 +1328,10 @@ gen_QImode_compare_branch(op, dest)
      rtx dest;
 {
   rtx xops[2];
-  
+
   xops[0] = dest;
   xops[1] = gen_rtx_LABEL_REF (GET_MODE(dest), gen_label_rtx ());
-  
+
   switch (GET_CODE (op))
     {
     case EQ:
@@ -1349,13 +1385,13 @@ gen_HImode_compare_branch(op, dest)
      rtx dest;
 {
   rtx xops[5];
-  
+
   xops[0] = unsp_compare_op0;
-  xops[1] = unsp_compare_op1;  
+  xops[1] = unsp_compare_op1;
   xops[2] = dest;
   xops[3] = gen_rtx_LABEL_REF (GET_MODE(dest), gen_label_rtx ());
   xops[4] = gen_rtx_LABEL_REF (GET_MODE(dest), gen_label_rtx ());
-  
+
   switch (GET_CODE (op))
     {
     case EQ:
@@ -1437,9 +1473,9 @@ gen_HFmode_compare_branch(op, dest)
      rtx dest;
 {
   rtx xops[1];
-  
+
   xops[0] = dest;
-  
+
   switch (GET_CODE (op))
     {
     case EQ:
@@ -1531,7 +1567,7 @@ init_cumulative_args (cum, fntype, libname, incoming)
      int incoming;
 {
   *cum = 0;
-  
+
   if (fntype && lookup_attribute ("far", TYPE_ATTRIBUTES (fntype)))
     unsp_register_far_ptr_name (IDENTIFIER_POINTER (TYPE_NAME (fntype)));
 }

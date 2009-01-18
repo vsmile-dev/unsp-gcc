@@ -2692,52 +2692,52 @@
 ;===============================================================================
 ;===============================================================================
 
-(define_expand "andqi3"
-  [(set (match_operand:QI 0 "lvalue_operand" "")
-        (and:QI (match_operand:QI 1 "register_operand" "")
-                (match_operand:QI 2 "general_operand" "")))]
-  ""
-  "
-{
-  /* If operands[0] is memory, operands[2] can only be register */
-  if (no_new_pseudos == 0
-      && GET_CODE (operands[0]) == MEM
-      && GET_CODE (operands[2]) != REG)
-    operands[2] = force_reg (QImode, operands[2]);
-
-  if (TARGET_WARN_SEC_VAR)
-    {
-      char * var_name;
-      char * sec_name;
-      extern char * check_sec_var(rtx, char **, char **);
-
-      if (check_sec_var (operands[0], &var_name, &sec_name))
-        warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
-      if (check_sec_var (operands[1], &var_name, &sec_name))
-        warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
-      if (check_sec_var (operands[2], &var_name, &sec_name))
-        warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
-    }
-
-  if (GET_CODE (operands[0]) == REG
-           && REGNO (operands[0]) != REGNO (operands[1])
-           && GET_CODE (operands[2]) != CONST_INT
-           && ! direct16_memory_operand (operands[2], QImode))
-    {
-      if (GET_CODE (operands[2]) == REG)
-        {
-          emit_insn (gen_movqi_all (operands[0], operands[1]));
-          emit_insn (gen_andqi3_r0r (operands[0], operands[0], operands[2]));
-          DONE;
-        }
-      else
-        {
-          emit_insn (gen_movqi_all (operands[0], operands[1]));
-          emit_insn (gen_andqi3_r0R (operands[0], operands[0], operands[2]));
-          DONE;
-        }
-    }
-}")
+; (define_expand "andqi3"
+;   [(set (match_operand:QI 0 "lvalue_operand" "")
+;         (and:QI (match_operand:QI 1 "register_operand" "")
+;                 (match_operand:QI 2 "general_operand" "")))]
+;   ""
+;   "
+; {
+;   /* If operands[0] is memory, operands[2] can only be register */
+;   if (no_new_pseudos == 0
+;       && GET_CODE (operands[0]) == MEM
+;       && GET_CODE (operands[2]) != REG)
+;     operands[2] = force_reg (QImode, operands[2]);
+; 
+;   if (TARGET_WARN_SEC_VAR)
+;     {
+;       char * var_name;
+;       char * sec_name;
+;       extern char * check_sec_var(rtx, char **, char **);
+; 
+;       if (check_sec_var (operands[0], &var_name, &sec_name))
+;         warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
+;       if (check_sec_var (operands[1], &var_name, &sec_name))
+;         warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
+;       if (check_sec_var (operands[2], &var_name, &sec_name))
+;         warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
+;     }
+; 
+;   if (GET_CODE (operands[0]) == REG
+;            && REGNO (operands[0]) != REGNO (operands[1])
+;            && GET_CODE (operands[2]) != CONST_INT
+;            && ! direct16_memory_operand (operands[2], QImode))
+;     {
+;       if (GET_CODE (operands[2]) == REG)
+;         {
+;           emit_insn (gen_movqi_all (operands[0], operands[1]));
+;           emit_insn (gen_andqi3_r0r (operands[0], operands[0], operands[2]));
+;           DONE;
+;         }
+;       else
+;         {
+;           emit_insn (gen_movqi_all (operands[0], operands[1]));
+;           emit_insn (gen_andqi3_r0R (operands[0], operands[0], operands[2]));
+;           DONE;
+;         }
+;     }
+; }")
 
 (define_expand "andhi3"
   [(set (match_operand:HI 0 "register_operand" "")
@@ -2838,24 +2838,35 @@
   return \"%0&=%2\\t// andqi3_r0R\";
 }")
 
-(define_insn "andqi3_r0r"
-  [(set (match_operand:QI 0 "register_operand" "=r")
-        (and:QI (match_operand:QI 1 "register_operand" "0")
-                (match_operand:QI 2 "register_operand" "r")))]
-  ""
+(define_insn ""
+  [(set (match_operand:QI 0 "general_operand" "=r,R")
+        (and:QI (match_operand:QI 1 "general_operand" "0,0")
+                (match_operand:QI 2 "immediate_operand" "i,i")))]
+  "(TARGET_ISA_1_2 || TARGET_ISA_1_3 || TARGET_ISA_2_0)
+   && clear_bit_immediate_operand (operands[2]) >= 1"
   "*
 {
-  /* Rd ALU_OP= Rs */
-  return \"%0&=%2\";
+  rtx xops[2];
+
+  xops[0] = operands[0];
+  xops[1] = GEN_INT (clear_bit_immediate_operand (operands[2]) - 1);
+  output_asm_insn (\"CLRB %0, %1\", xops);
+  return \"\";
 }")
 
-(define_insn "andqi3_rri"
-  [(set (match_operand:QI 0 "register_operand" "=r")
-        (and:QI (match_operand:QI 1 "register_operand" "r")
-                (match_operand:QI 2 "immediate_operand" "i")))]
+(define_insn "andqi3"
+  [(set (match_operand:QI 0 "general_operand" "=r,r")
+        (and:QI (match_operand:QI 1 "general_operand" "0,r")
+                (match_operand:QI 2 "general_operand" "r,i")))]
   ""
   "*
 {
+  if (which_alternative == 0)
+    {
+      /* Rd ALU_OP= Rs */
+      return \"%0&=%2\";
+    }
+
   if (GET_CODE (operands[2]) == SYMBOL_REF
       && far_ptr_name (XSTR (operands[2], 0)) == 1)
     {
@@ -3208,52 +3219,52 @@
 ;===============================================================================
 ;===============================================================================
 
-(define_expand "iorqi3"
-  [(set (match_operand:QI 0 "lvalue_operand" "")
-        (ior:QI (match_operand:QI 1 "register_operand" "")
-                (match_operand:QI 2 "general_operand" "")))]
-  ""
-  "
-{
-  /* If operands[0] is memory, operands[2] can only be register */
-  if (no_new_pseudos == 0
-      && GET_CODE (operands[0]) == MEM
-      && GET_CODE (operands[2]) != REG)
-    operands[2] = force_reg (QImode, operands[2]);
-
-  if (TARGET_WARN_SEC_VAR)
-    {
-      char * var_name;
-      char * sec_name;
-      extern char * check_sec_var(rtx, char **, char **);
-
-      if (check_sec_var (operands[0], &var_name, &sec_name))
-        warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
-      if (check_sec_var (operands[1], &var_name, &sec_name))
-        warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
-      if (check_sec_var (operands[2], &var_name, &sec_name))
-        warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
-    }
-
-  if (GET_CODE (operands[0]) == REG
-           && REGNO (operands[0]) != REGNO (operands[1])
-           && GET_CODE (operands[2]) != CONST_INT
-           && ! direct16_memory_operand (operands[2], QImode))
-    {
-      if (GET_CODE (operands[2]) == REG)
-        {
-          emit_insn (gen_movqi_all (operands[0], operands[1]));
-          emit_insn (gen_iorqi3_r0r (operands[0], operands[0], operands[2]));
-          DONE;
-        }
-      else
-        {
-          emit_insn (gen_movqi_all (operands[0], operands[1]));
-          emit_insn (gen_iorqi3_r0R (operands[0], operands[0], operands[2]));
-          DONE;
-        }
-    }
-}")
+; (define_expand "iorqi3"
+;   [(set (match_operand:QI 0 "lvalue_operand" "")
+;         (ior:QI (match_operand:QI 1 "register_operand" "")
+;                 (match_operand:QI 2 "general_operand" "")))]
+;   ""
+;   "
+; {
+;   /* If operands[0] is memory, operands[2] can only be register */
+;   if (no_new_pseudos == 0
+;       && GET_CODE (operands[0]) == MEM
+;       && GET_CODE (operands[2]) != REG)
+;     operands[2] = force_reg (QImode, operands[2]);
+; 
+;   if (TARGET_WARN_SEC_VAR)
+;     {
+;       char * var_name;
+;       char * sec_name;
+;       extern char * check_sec_var(rtx, char **, char **);
+; 
+;       if (check_sec_var (operands[0], &var_name, &sec_name))
+;         warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
+;       if (check_sec_var (operands[1], &var_name, &sec_name))
+;         warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
+;       if (check_sec_var (operands[2], &var_name, &sec_name))
+;         warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
+;     }
+; 
+;   if (GET_CODE (operands[0]) == REG
+;            && REGNO (operands[0]) != REGNO (operands[1])
+;            && GET_CODE (operands[2]) != CONST_INT
+;            && ! direct16_memory_operand (operands[2], QImode))
+;     {
+;       if (GET_CODE (operands[2]) == REG)
+;         {
+;           emit_insn (gen_movqi_all (operands[0], operands[1]));
+;           emit_insn (gen_iorqi3_r0r (operands[0], operands[0], operands[2]));
+;           DONE;
+;         }
+;       else
+;         {
+;           emit_insn (gen_movqi_all (operands[0], operands[1]));
+;           emit_insn (gen_iorqi3_r0R (operands[0], operands[0], operands[2]));
+;           DONE;
+;         }
+;     }
+; }")
 
 (define_expand "iorhi3"
   [(set (match_operand:HI 0 "register_operand" "")
@@ -3353,24 +3364,35 @@
   return \"%0|=%2\\t// iorqi3_r0R\";
 }")
 
-(define_insn "iorqi3_r0r"
-  [(set (match_operand:QI 0 "register_operand" "=r")
-        (ior:QI (match_operand:QI 1 "register_operand" "0")
-                (match_operand:QI 2 "register_operand" "r")))]
-  ""
+(define_insn ""
+  [(set (match_operand:QI 0 "general_operand" "=r,R")
+        (ior:QI (match_operand:QI 1 "general_operand" "0,0")
+                (match_operand:QI 2 "immediate_operand" "i,i")))]
+  "(TARGET_ISA_1_2 || TARGET_ISA_1_3 || TARGET_ISA_2_0)
+   && set_bit_immediate_operand (operands[2]) >= 1"
   "*
 {
-  /* Rd ALU_OP= Rs */
-  return \"%0|=%2\";
+  rtx xops[2];
+  xops[0] = operands[0];
+  xops[1] = GEN_INT (set_bit_immediate_operand (operands[2]) - 1);
+
+  output_asm_insn (\"SETB %0, %1\", xops);
+  return \"\";
 }")
 
-(define_insn "iorqi3_rri"
-  [(set (match_operand:QI 0 "register_operand" "=r")
-        (ior:QI (match_operand:QI 1 "register_operand" "r")
-                (match_operand:QI 2 "immediate_operand" "i")))]
+(define_insn "iorqi3"
+  [(set (match_operand:QI 0 "general_operand" "=r,r")
+        (ior:QI (match_operand:QI 1 "general_operand" "0,r")
+                (match_operand:QI 2 "general_operand" "r,i")))]
   ""
   "*
 {
+  if (which_alternative == 0)
+  {
+    /* Rd ALU_OP= Rs */
+    return \"%0|=%2\";
+  }
+
   if (GET_CODE (operands[2]) == SYMBOL_REF
       && far_ptr_name (XSTR (operands[2], 0)) == 1)
     {
@@ -3413,6 +3435,56 @@
   /* Rd = Rs ALU_OP #IM16 */
   return \"%0=%1|%2\";
 }")
+
+; (define_insn "iorqi3_rri"
+;   [(set (match_operand:QI 0 "register_operand" "=r")
+;         (ior:QI (match_operand:QI 1 "register_operand" "r")
+;                 (match_operand:QI 2 "immediate_operand" "i")))]
+;   ""
+;   "*
+; {
+;   if (GET_CODE (operands[2]) == SYMBOL_REF
+;       && far_ptr_name (XSTR (operands[2], 0)) == 1)
+;     {
+;       /* Special handle for function pointer */
+;       rtx xops[3];
+;       char name[60];
+; 
+;       sprintf (name, \"*%s_entry\", XSTR (operands[2], 0));
+;       xops[0] = operands[0];
+;       xops[1] = operands[1];
+;       xops[2] = gen_rtx_SYMBOL_REF (QImode, name);
+; 
+;       if (TARGET_PAGE0_MASKROM)
+;         output_asm_insn (\"%0 = %1 | OFFSET(%2)\", xops);
+;       else
+;         output_asm_insn (\"%0=%1|%2\", xops);
+;       return \"\";
+;     }
+;   else if (GET_CODE (operands[2]) == CONST
+;            && GET_CODE (XEXP (operands[2], 0)) == PLUS
+;            && GET_CODE (XEXP (XEXP (operands[2], 0), 0)) == SYMBOL_REF
+;            && far_ptr_name (XSTR (XEXP (XEXP (operands[2], 0), 0), 0)) == 1)
+;     {
+;       /* Special handle for function pointer */
+;       rtx xops[3];
+;       char name[60];
+; 
+;       sprintf (name, \"*%s_entry\", XSTR (XEXP (XEXP (operands[2], 0), 0), 0));
+;       xops[0] = operands[0];
+;       xops[1] = operands[1];
+;       xops[2] = gen_rtx (CONST, QImode, gen_rtx (PLUS, QImode, gen_rtx_SYMBOL_REF (QImode, name), XEXP (XEXP (operands[2], 0), 1)));
+; 
+;       if (TARGET_PAGE0_MASKROM)
+;         output_asm_insn (\"%0 = %1 | OFFSET(%2)\", xops);
+;       else
+;         output_asm_insn (\"%0=%1|%2\", xops);
+;       return \"\";
+;     }
+; 
+;   /* Rd = Rs ALU_OP #IM16 */
+;   return \"%0=%1|%2\";
+; }")
 
 (define_insn "iorqi3_Qrr"
   [(set (match_operand:QI 0 "direct16_memory_operand" "=Q")
@@ -3722,52 +3794,52 @@
 ;===============================================================================
 ;===============================================================================
 
-(define_expand "xorqi3"
-  [(set (match_operand:QI 0 "lvalue_operand" "")
-        (xor:QI (match_operand:QI 1 "register_operand" "")
-                (match_operand:QI 2 "general_operand" "")))]
-  ""
-  "
-{
-  /* If operands[0] is memory, operands[2] can only be register */
-  if (no_new_pseudos == 0
-      && GET_CODE (operands[0]) == MEM
-      && GET_CODE (operands[2]) != REG)
-    operands[2] = force_reg (QImode, operands[2]);
-
-  if (TARGET_WARN_SEC_VAR)
-    {
-      char * var_name;
-      char * sec_name;
-      extern char * check_sec_var(rtx, char **, char **);
-
-      if (check_sec_var (operands[0], &var_name, &sec_name))
-        warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
-      if (check_sec_var (operands[1], &var_name, &sec_name))
-        warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
-      if (check_sec_var (operands[2], &var_name, &sec_name))
-        warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
-    }
-
-  if (GET_CODE (operands[0]) == REG
-           && REGNO (operands[0]) != REGNO (operands[1])
-           && GET_CODE (operands[2]) != CONST_INT
-           && ! direct16_memory_operand (operands[2], QImode))
-    {
-      if (GET_CODE (operands[2]) == REG)
-        {
-          emit_insn (gen_movqi_all (operands[0], operands[1]));
-          emit_insn (gen_xorqi3_r0r (operands[0], operands[0], operands[2]));
-          DONE;
-        }
-      else
-        {
-          emit_insn (gen_movqi_all (operands[0], operands[1]));
-          emit_insn (gen_xorqi3_r0R (operands[0], operands[0], operands[2]));
-          DONE;
-        }
-    }
-}")
+; (define_expand "xorqi3"
+;   [(set (match_operand:QI 0 "lvalue_operand" "")
+;         (xor:QI (match_operand:QI 1 "register_operand" "")
+;                 (match_operand:QI 2 "general_operand" "")))]
+;   ""
+;   "
+; {
+;   /* If operands[0] is memory, operands[2] can only be register */
+;   if (no_new_pseudos == 0
+;       && GET_CODE (operands[0]) == MEM
+;       && GET_CODE (operands[2]) != REG)
+;     operands[2] = force_reg (QImode, operands[2]);
+; 
+;   if (TARGET_WARN_SEC_VAR)
+;     {
+;       char * var_name;
+;       char * sec_name;
+;       extern char * check_sec_var(rtx, char **, char **);
+; 
+;       if (check_sec_var (operands[0], &var_name, &sec_name))
+;         warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
+;       if (check_sec_var (operands[1], &var_name, &sec_name))
+;         warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
+;       if (check_sec_var (operands[2], &var_name, &sec_name))
+;         warning (\"using variable \\\"%s\\\" in \\\"%s\\\" section.\", var_name, sec_name);
+;     }
+; 
+;   if (GET_CODE (operands[0]) == REG
+;            && REGNO (operands[0]) != REGNO (operands[1])
+;            && GET_CODE (operands[2]) != CONST_INT
+;            && ! direct16_memory_operand (operands[2], QImode))
+;     {
+;       if (GET_CODE (operands[2]) == REG)
+;         {
+;           emit_insn (gen_movqi_all (operands[0], operands[1]));
+;           emit_insn (gen_xorqi3_r0r (operands[0], operands[0], operands[2]));
+;           DONE;
+;         }
+;       else
+;         {
+;           emit_insn (gen_movqi_all (operands[0], operands[1]));
+;           emit_insn (gen_xorqi3_r0R (operands[0], operands[0], operands[2]));
+;           DONE;
+;         }
+;     }
+; }")
 
 (define_expand "xorhi3"
   [(set (match_operand:HI 0 "register_operand" "")
@@ -3868,24 +3940,35 @@
   return \"%0^=%2\\t// xorqi3_r0R\";
 }")
 
-(define_insn "xorqi3_r0r"
-  [(set (match_operand:QI 0 "register_operand" "=r")
-        (xor:QI (match_operand:QI 1 "register_operand" "0")
-                (match_operand:QI 2 "register_operand" "r")))]
-  ""
+(define_insn ""
+  [(set (match_operand:QI 0 "general_operand" "=r,R")
+        (xor:QI (match_operand:QI 1 "general_operand" "0,0")
+                (match_operand:QI 2 "immediate_operand" "i,i")))]
+  "(TARGET_ISA_1_2 || TARGET_ISA_1_3 || TARGET_ISA_2_0)
+   && set_bit_immediate_operand (operands[2]) >= 1"
   "*
 {
-  /* Rd ALU_OP= Rs */
-  return \"%0^=%2\";
+  rtx xops[2];
+
+  xops[0] = operands[0];
+  xops[1] = GEN_INT (set_bit_immediate_operand (operands[2]) - 1);
+  output_asm_insn (\"INVB %0, %1\", xops);
+  return \"\";
 }")
 
-(define_insn "xorqi3_rri"
-  [(set (match_operand:QI 0 "register_operand" "=r")
-        (xor:QI (match_operand:QI 1 "register_operand" "r")
-                (match_operand:QI 2 "immediate_operand" "i")))]
+(define_insn "xorqi3"
+  [(set (match_operand:QI 0 "general_operand" "=r,r")
+        (xor:QI (match_operand:QI 1 "general_operand" "0,r")
+                (match_operand:QI 2 "general_operand" "r,i")))]
   ""
   "*
 {
+  if (which_alternative == 0)
+    {
+      /* Rd ALU_OP= Rs */
+      return \"%0 ^= %2\";
+    }
+
   if (GET_CODE (operands[2]) == SYMBOL_REF
       && far_ptr_name (XSTR (operands[2], 0)) == 1)
     {
