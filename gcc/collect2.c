@@ -1770,7 +1770,7 @@ collect_execute (prog, argv, redir)
   if (redir)
     {
       /* Open response file.  */
-      redir_handle = open (redir, O_WRONLY | O_TRUNC | O_CREAT);
+      redir_handle = open (redir, O_WRONLY | O_TRUNC | O_CREAT, 0600);
 
       /* Duplicate the stdout and stderr file handles
 	 so they can be restored later.  */

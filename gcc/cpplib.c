@@ -3142,7 +3142,7 @@ v_cpp_warning_with_line (pfile, line, column, msgid, ap)
   if (ip != NULL)
     cpp_file_line_for_message (pfile, ip->nominal_fname, line, column);
 
-#ifdef
+#ifdef unSP
   v_cpp_message (pfile, 0, msg, ap);
 #else
   v_cpp_message (pfile, 0, msgid, ap);

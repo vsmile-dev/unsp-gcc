@@ -91,8 +91,8 @@ typedef unsigned int USItype	__attribute__ ((mode (SI)));
 typedef		 int DItype	__attribute__ ((mode (DI)));
 typedef unsigned int UDItype	__attribute__ ((mode (DI)));
 
-typedef 	float SFtype	__attribute__ ((mode (SF)));
-typedef		float DFtype	__attribute__ ((mode (DF)));
+//typedef 	float SFtype	__attribute__ ((mode (SF)));
+//typedef		float DFtype	__attribute__ ((mode (DF)));
 
 #if LIBGCC2_LONG_DOUBLE_TYPE_SIZE == 96
 typedef		float XFtype	__attribute__ ((mode (XF)));
@@ -146,8 +146,8 @@ typedef union
 
 #endif /* udiv or mul */
 
-extern DItype __fixunssfdi (SFtype a);
-extern DItype __fixunsdfdi (DFtype a);
+//extern DItype __fixunssfdi (SFtype a);
+//extern DItype __fixunsdfdi (DFtype a);
 #if LIBGCC2_LONG_DOUBLE_TYPE_SIZE == 96
 extern DItype __fixunsxfdi (XFtype a);
 #endif
